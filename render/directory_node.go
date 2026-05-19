@@ -7,16 +7,6 @@ import (
 	"github.com/itsubaki/gocov/report"
 )
 
-type DirectoryNode struct {
-	name        string
-	displayPath string
-	depth       int
-	Stats       report.Stats
-	SelfStats   report.Stats
-	children    []*DirectoryNode
-	childByName map[string]*DirectoryNode
-}
-
 func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 	pathParts := func(path string) []string {
 		slash := strings.ReplaceAll(path, "\\", "/")
@@ -61,6 +51,16 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 
 	root.Refresh()
 	return root
+}
+
+type DirectoryNode struct {
+	name        string
+	displayPath string
+	depth       int
+	Stats       report.Stats
+	SelfStats   report.Stats
+	children    []*DirectoryNode
+	childByName map[string]*DirectoryNode
 }
 
 func (n *DirectoryNode) AddStats(s report.Stats) {
