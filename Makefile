@@ -9,3 +9,6 @@ gocov:
 
 install:
 	go install
+
+open:
+	open coverage.html

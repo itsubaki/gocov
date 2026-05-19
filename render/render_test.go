@@ -9,7 +9,7 @@ import (
 	"github.com/itsubaki/gocov/render"
 )
 
-func TestGeneratedAt(t *testing.T) {
+func Test_generatedAt(t *testing.T) {
 	cases := []struct {
 		t    time.Time
 		want string
@@ -31,7 +31,7 @@ func TestGeneratedAt(t *testing.T) {
 	}
 }
 
-func TestStylePct(t *testing.T) {
+func Test_stylePct(t *testing.T) {
 	cases := []struct {
 		v    float64
 		want string
@@ -50,7 +50,7 @@ func TestStylePct(t *testing.T) {
 	}
 }
 
-func TestCovColor(t *testing.T) {
+func Test_covColor(t *testing.T) {
 	cases := []struct {
 		v    float64
 		want template.CSS
@@ -73,7 +73,7 @@ func TestCovColor(t *testing.T) {
 	}
 }
 
-func TestLineClass(t *testing.T) {
+func Test_lineClass(t *testing.T) {
 	cases := []struct {
 		state string
 		want  string
