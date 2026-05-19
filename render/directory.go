@@ -19,7 +19,7 @@ func NewDirectorySlice(rep report.Report) []Directory {
 		root,
 		-90,
 		270,
-		root.maxDepth()+1,
+		root.MaxDepth()+1,
 		total,
 	)
 }
@@ -87,23 +87,23 @@ func appendDir(dirs []Directory, node *DirectoryNode, start, end float64, ringCo
 
 type Directory struct {
 	Name     string
+	Depth    int
+	Lines    int
 	Path     string
 	Color    string
 	Coverage string
 	Share    string
-	Lines    int
-	Depth    int
 }
 
 func NewDirectory(summary report.Summary, name string, depth int, start, end float64, ringCount, total int) Directory {
 	return Directory{
 		Name:     name,
+		Depth:    depth,
+		Lines:    summary.Weight(),
 		Path:     donutSegmentPath(start, end, depth, ringCount),
 		Color:    coverageColor(summary.Percent),
 		Coverage: percent(summary.Percent),
 		Share:    sharePercent(summary.Weight(), total),
-		Lines:    summary.Weight(),
-		Depth:    depth,
 	}
 }
 

@@ -43,46 +43,46 @@ func NewDirectoryNode(dirs []report.Directory) *DirectoryNode {
 			continue
 		}
 
-		root.addSummary(dir.Summary)
+		root.AddSummary(dir.Summary)
 		if dir.Name == "root" {
-			root.addSelfSummary(dir.Summary)
+			root.AddSelfSummary(dir.Summary)
 			continue
 		}
 
 		node, parts := root, pathParts(dir.Name)
 		for idx, part := range parts {
-			node = node.addChild(part, strings.Join(parts[:idx+1], "/"))
-			node.addSummary(dir.Summary)
+			node = node.AddChild(part, strings.Join(parts[:idx+1], "/"))
+			node.AddSummary(dir.Summary)
 		}
 
-		node.addSelfSummary(dir.Summary)
+		node.AddSelfSummary(dir.Summary)
 	}
 
-	return root.reflesh().sort()
+	return root.Reflesh().Sort()
 }
 
-func (n *DirectoryNode) addSummary(s report.Summary) {
+func (n *DirectoryNode) AddSummary(s report.Summary) {
 	n.summary.Add(s)
 }
 
-func (n *DirectoryNode) addSelfSummary(s report.Summary) {
+func (n *DirectoryNode) AddSelfSummary(s report.Summary) {
 	n.selfSummary.Add(s)
 }
 
-func (n *DirectoryNode) maxDepth() int {
+func (n *DirectoryNode) MaxDepth() int {
 	depth := n.depth
 	if len(n.children) > 0 && n.selfSummary.Weight() > 0 {
 		depth = max(depth, n.depth+1)
 	}
 
 	for _, child := range n.children {
-		depth = max(depth, child.maxDepth())
+		depth = max(depth, child.MaxDepth())
 	}
 
 	return depth
 }
 
-func (n *DirectoryNode) addChild(name, displayPath string) *DirectoryNode {
+func (n *DirectoryNode) AddChild(name, displayPath string) *DirectoryNode {
 	if child := n.childByName[name]; child != nil {
 		return child
 	}
@@ -99,24 +99,24 @@ func (n *DirectoryNode) addChild(name, displayPath string) *DirectoryNode {
 	return child
 }
 
-func (n *DirectoryNode) reflesh() *DirectoryNode {
+func (n *DirectoryNode) Reflesh() *DirectoryNode {
 	n.summary.Refresh()
 	n.selfSummary.Refresh()
 
 	for _, child := range n.children {
-		child.reflesh()
+		child.Reflesh()
 	}
 
 	return n
 }
 
-func (n *DirectoryNode) sort() *DirectoryNode {
+func (n *DirectoryNode) Sort() *DirectoryNode {
 	sort.Slice(n.children, func(i, j int) bool {
 		return n.children[i].displayPath < n.children[j].displayPath
 	})
 
 	for _, child := range n.children {
-		child.sort()
+		child.Sort()
 	}
 
 	return n

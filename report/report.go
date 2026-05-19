@@ -34,6 +34,45 @@ type File struct {
 	Lines       []Line
 }
 
+func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []profile.Block) (File, error) {
+	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
+	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
+	dirName := filepath.ToSlash(filepath.Dir(displayPath))
+	if dirName == "." {
+		dirName = "root"
+	}
+
+	file := File{
+		ID:          fmt.Sprintf("file-%d", idx+1),
+		DisplayPath: displayPath,
+		ProfilePath: profileFile,
+		SourcePath:  sourcePath,
+		Directory:   dirName,
+		Found:       found,
+		Blocks:      len(blocks),
+	}
+
+	for _, block := range blocks {
+		file.Summary.TotalStatements += block.Statements
+		if block.Count > 0 {
+			file.Summary.CoveredStatements += block.Statements
+		}
+	}
+
+	if found {
+		lines, err := sourceLines(sourcePath)
+		if err != nil {
+			return File{}, fmt.Errorf("read source %s: %w", sourcePath, err)
+		}
+
+		file.Lines = newLines(lines, blocks)
+		file.Summary.Count(file.Lines)
+	}
+
+	file.Summary.Refresh()
+	return file, nil
+}
+
 type Directory struct {
 	Name    string
 	Summary Summary
@@ -100,7 +139,7 @@ func (s *Summary) Refresh() {
 	}
 }
 
-func (s *Summary) count(lines []Line) {
+func (s *Summary) Count(lines []Line) {
 	for _, line := range lines {
 		switch line.State {
 		case "covered":
@@ -147,53 +186,23 @@ func New(prof profile.Profile, opts Options) (Report, error) {
 
 	dirs := make(map[string]*Directory)
 	for idx, profileFile := range files {
-		sourcePath, found := sourcePath(opts.RootPath, modulePath, profileFile)
-		displayPath := displayPath(opts.RootPath, modulePath, profileFile, sourcePath, found)
-		dirName := filepath.ToSlash(filepath.Dir(displayPath))
-		if dirName == "." {
-			dirName = "root"
-		}
-
-		file := File{
-			ID:          fmt.Sprintf("file-%d", idx+1),
-			DisplayPath: displayPath,
-			ProfilePath: profileFile,
-			SourcePath:  sourcePath,
-			Directory:   dirName,
-			Found:       found,
-			Blocks:      len(blocksByFile[profileFile]),
-		}
-
 		blocks := blocksByFile[profileFile]
-		for _, block := range blocks {
-			file.Summary.TotalStatements += block.Statements
-			if block.Count > 0 {
-				file.Summary.CoveredStatements += block.Statements
-			}
+		file, err := NewFile(opts.RootPath, modulePath, profileFile, idx, blocks)
+		if err != nil {
+			return Report{}, fmt.Errorf("create file report for %s: %w", profileFile, err)
 		}
 
-		if found {
-			// update file summary by line coverage
-			lines, err := sourceLines(sourcePath)
-			if err != nil {
-				return Report{}, fmt.Errorf("read source %s: %w", sourcePath, err)
-			}
-
-			file.Lines = newLines(lines, blocks)
-			file.Summary.count(file.Lines)
-		} else {
-			// if source file is not found, consider all statements as missed
+		if !file.Found {
 			rep.MissingFiles = append(rep.MissingFiles, profileFile)
 		}
 
-		file.Summary.Refresh()
 		rep.Summary.Add(file.Summary)
 		rep.Files = append(rep.Files, file)
 
-		dir, ok := dirs[dirName]
+		dir, ok := dirs[file.Directory]
 		if !ok {
-			dirs[dirName] = &Directory{
-				Name:    dirName,
+			dirs[file.Directory] = &Directory{
+				Name:    file.Directory,
 				Summary: file.Summary,
 			}
 
