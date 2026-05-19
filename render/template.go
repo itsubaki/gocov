@@ -5,7 +5,7 @@ const reportTemplate = `<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>gocov coverage report</title>
+  <title>Coverage report</title>
   <style>
     :root {
       color-scheme: light;
@@ -681,7 +681,6 @@ const reportTemplate = `<!doctype html>
 <body data-line-filter="all">
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand"><span class="brand-mark">go</span><span>gocov</span></div>
       <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
       <div class="side-meta">
         <div>{{.Summary.TotalFiles}} files</div>
