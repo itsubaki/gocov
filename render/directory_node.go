@@ -64,11 +64,11 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 }
 
 func (n *DirectoryNode) AddStats(s report.Stats) {
-	n.Stats.Add(s)
+	n.Stats.Merge(s)
 }
 
 func (n *DirectoryNode) AddSelfStats(s report.Stats) {
-	n.SelfStats.Add(s)
+	n.SelfStats.Merge(s)
 }
 
 func (n *DirectoryNode) MaxDepth() int {

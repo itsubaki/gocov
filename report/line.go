@@ -21,7 +21,7 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 		hits    int64
 	}
 
-	coverage := make([]LineCoverage, len(sourceLines)+1)
+	cov := make([]LineCoverage, len(sourceLines)+1)
 	for _, v := range blocks {
 		start, end := max(1, v.StartLine), v.EndLine
 		if v.EndCol == 1 && end > start {
@@ -35,12 +35,12 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 
 		for line := start; line <= end; line++ {
 			if v.Count > 0 {
-				coverage[line].covered = true
-				coverage[line].hits += v.Count
+				cov[line].covered = true
+				cov[line].hits += v.Count
 				continue
 			}
 
-			coverage[line].missed = true
+			cov[line].missed = true
 		}
 	}
 
@@ -48,14 +48,14 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 	for i, code := range sourceLines {
 		lineNo, state, hits := i+1, "neutral", "0"
 
-		switch cov := coverage[lineNo]; {
-		case cov.covered && cov.missed:
+		switch v := cov[lineNo]; {
+		case v.covered && v.missed:
 			state = "partial"
-			hits = formatHits(cov.hits)
-		case cov.covered:
+			hits = formatHits(v.hits)
+		case v.covered:
 			state = "covered"
-			hits = formatHits(cov.hits)
-		case cov.missed:
+			hits = formatHits(v.hits)
+		case v.missed:
 			state = "missed"
 			hits = "0"
 		}

@@ -12,11 +12,6 @@ import (
 	"github.com/itsubaki/gocov/profile"
 )
 
-type Directory struct {
-	Name  string
-	Stats Stats
-}
-
 type Options struct {
 	RootPath    string
 	ProfilePath string
@@ -37,14 +32,14 @@ type Report struct {
 	Directories  []*Directory
 }
 
-func (r *Report) AddFile(file *File, profileFile string) {
-	if !file.Found {
-		r.MissingFiles = append(r.MissingFiles, profileFile)
+func (r *Report) AddFile(f *File, profile string) {
+	if !f.Found {
+		r.MissingFiles = append(r.MissingFiles, profile)
 	}
 
-	r.Files = append(r.Files, file)
+	r.Files = append(r.Files, f)
 	r.Stats.TotalFiles = len(r.Files)
-	r.Stats.Add(file.Stats)
+	r.Stats.Merge(f.Stats)
 	r.Stats.Refresh()
 }
 
@@ -99,20 +94,7 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 	}
 
 	// add directories
-	dirs := make(map[string]*Directory)
-	for _, f := range rep.Files {
-		if dir, ok := dirs[f.Directory]; ok {
-			dir.Stats.Add(f.Stats)
-			continue
-		}
-
-		dirs[f.Directory] = &Directory{
-			Name:  f.Directory,
-			Stats: f.Stats,
-		}
-	}
-
-	rep.AddDirs(dirs)
+	rep.AddDirs(NewDirectory(rep.Files))
 	return rep, nil
 }
 
