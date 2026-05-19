@@ -58,7 +58,8 @@ func NewDirectoryNode(dirs []report.Directory) *DirectoryNode {
 		node.AddSelfStats(dir.Stats)
 	}
 
-	return root.Reflesh().Sort()
+	root.Refresh()
+	return root
 }
 
 func (n *DirectoryNode) AddStats(s report.Stats) {
@@ -99,25 +100,23 @@ func (n *DirectoryNode) AddChild(name, displayPath string) *DirectoryNode {
 	return child
 }
 
-func (n *DirectoryNode) Reflesh() *DirectoryNode {
+func (n *DirectoryNode) Refresh() {
 	n.Stats.Refresh()
 	n.SelfStats.Refresh()
 
 	for _, child := range n.children {
-		child.Reflesh()
+		child.Refresh()
 	}
 
-	return n
+	nsort(n)
 }
 
-func (n *DirectoryNode) Sort() *DirectoryNode {
+func nsort(n *DirectoryNode) {
 	sort.Slice(n.children, func(i, j int) bool {
 		return n.children[i].displayPath < n.children[j].displayPath
 	})
 
 	for _, child := range n.children {
-		child.Sort()
+		nsort(child)
 	}
-
-	return n
 }
