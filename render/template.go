@@ -478,15 +478,15 @@ const reportTemplate = `<!doctype html>
     }
 
     details { overflow: hidden; }
-    details[open] summary { border-bottom: 1px solid var(--border); }
+    details[open] Stats { border-bottom: 1px solid var(--border); }
 
-    summary {
+    Stats {
       list-style: none;
       cursor: pointer;
       padding: 14px 16px;
     }
 
-    summary::-webkit-details-marker { display: none; }
+    Stats::-webkit-details-marker { display: none; }
 
     .file-header {
       display: grid;
@@ -662,17 +662,17 @@ const reportTemplate = `<!doctype html>
     <aside class="sidebar">
       <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
       <div class="side-meta">
-        <div>{{.Summary.TotalFiles}} files</div>
-        <div>{{.Summary.CoveredStatements}} / {{.Summary.TotalStatements}} statements covered</div>
+        <div>{{.Stats.TotalFiles}} files</div>
+        <div>{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} statements covered</div>
       </div>
       <nav class="file-list" id="fileList">
         {{range .Files}}
-        <a class="file-link" href="#{{.ID}}" data-file-link data-name="{{.DisplayPath}}" data-coverage="{{.Summary.Percent}}">
+        <a class="file-link" href="#{{.ID}}" data-file-link data-name="{{.DisplayPath}}" data-coverage="{{.Stats.Percent}}">
           <span class="file-link-top">
             <span class="file-name" title="{{.DisplayPath}}">{{.DisplayPath}}</span>
-            <span class="file-percent">{{pct .Summary.Percent}}</span>
+            <span class="file-percent">{{pct .Stats.Percent}}</span>
           </span>
-          <span class="bar" aria-hidden="true"><span class="bar-fill" style="--coverage: {{stylePct .Summary.Percent}}; --coverage-color: {{coverageColor .Summary.Percent}}"></span></span>
+          <span class="bar" aria-hidden="true"><span class="bar-fill" style="--coverage: {{stylePct .Stats.Percent}}; --coverage-color: {{coverageColor .Stats.Percent}}"></span></span>
         </a>
         {{end}}
       </nav>
@@ -694,19 +694,19 @@ const reportTemplate = `<!doctype html>
       <section class="stats" aria-label="Coverage totals">
         <div class="stat">
           <div class="stat-label">Tracked</div>
-          <div class="stat-value">{{.Summary.TotalLines}}</div>
+          <div class="stat-value">{{.Stats.TotalLines}}</div>
         </div>
         <div class="stat">
           <div class="stat-label">Covered</div>
-          <div class="stat-value">{{.Summary.CoveredLines}}</div>
+          <div class="stat-value">{{.Stats.CoveredLines}}</div>
         </div>
         <div class="stat">
           <div class="stat-label">Partial</div>
-          <div class="stat-value">{{.Summary.PartialLines}}</div>
+          <div class="stat-value">{{.Stats.PartialLines}}</div>
         </div>
         <div class="stat">
           <div class="stat-label">Missed</div>
-          <div class="stat-value">{{.Summary.MissedLines}}</div>
+          <div class="stat-value">{{.Stats.MissedLines}}</div>
         </div>
       </section>
 
@@ -726,31 +726,29 @@ const reportTemplate = `<!doctype html>
           <div class="directory-pie" aria-label="Directory coverage pie chart">
             <svg class="directory-pie-svg" viewBox="-1 -1 2 2" role="img" aria-label="Directory coverage by coverable lines">
               {{range directorySlices .}}
-              <path class="directory-slice" d="{{.Path}}" fill="{{.Color}}" tabindex="0" data-directory-slice data-name="{{.Name}}" data-coverage="{{.Coverage}}" data-lines="{{.Lines}}" data-share="{{.Share}}" data-depth="{{.Depth}}">
-                <title>{{.Name}} - {{.Coverage}} coverage, {{.Share}} of lines</title>
-              </path>
+              <path class="directory-slice" d="{{.Path}}" fill="{{.Color}}" tabindex="0" data-directory-slice data-name="{{.Name}}" data-coverage="{{.Coverage}}" data-lines="{{.Lines}}" data-share="{{.Share}}" data-depth="{{.Depth}}" />
               {{end}}
             </svg>
-            <div class="directory-pie-center" data-pie-center data-default-value="{{pct .Summary.Percent}}" data-default-label="total">
+            <div class="directory-pie-center" data-pie-center data-default-value="{{pct .Stats.Percent}}" data-default-label="total">
               <div>
-                <div class="directory-pie-value" data-pie-value>{{pct .Summary.Percent}}</div>
+                <div class="directory-pie-value" data-pie-value>{{pct .Stats.Percent}}</div>
                 <div class="directory-pie-label" data-pie-label>total</div>
               </div>
             </div>
             <div class="directory-tooltip" data-directory-tooltip role="status"></div>
           </div>
-          <div class="directory-pie-meta">{{.Summary.TotalLines}} coverable lines across {{len .Directories}} directories</div>
+          <div class="directory-pie-meta">{{.Stats.TotalLines}} coverable lines across {{len .Directories}} directories</div>
         </div>
         <section class="directory-grid" data-directory-grid>
           {{range .Directories}}
-          <div class="directory" data-directory-card data-name="{{.Name}}" data-coverage="{{.Summary.Percent}}">
+          <div class="directory" data-directory-card data-name="{{.Name}}" data-coverage="{{.Stats.Percent}}">
             <div class="directory-top">
               <span class="directory-name" title="{{.Name}}">{{.Name}}</span>
-              <span>{{pct .Summary.Percent}}</span>
+              <span>{{pct .Stats.Percent}}</span>
             </div>
-            <div class="bar" aria-hidden="true"><span class="bar-fill" style="--coverage: {{stylePct .Summary.Percent}}; --coverage-color: {{coverageColor .Summary.Percent}}"></span></div>
+            <div class="bar" aria-hidden="true"><span class="bar-fill" style="--coverage: {{stylePct .Stats.Percent}}; --coverage-color: {{coverageColor .Stats.Percent}}"></span></div>
             <div class="directory-row-meta" style="margin-top:8px; color:var(--muted); font-size:12px;">
-              {{.Summary.TotalLines}} lines · {{sharePct .Summary.TotalLines $.Summary.TotalLines}} of total
+              {{.Stats.TotalLines}} lines, {{sharePct .Stats.TotalLines $.Stats.TotalLines}} of total
             </div>
           </div>
           {{end}}
@@ -781,22 +779,22 @@ const reportTemplate = `<!doctype html>
 
       <div data-file-cards>
       {{range .Files}}
-      <section class="file-card" id="{{.ID}}" data-file-card data-name="{{.DisplayPath}}" data-coverage="{{.Summary.Percent}}">
+      <section class="file-card" id="{{.ID}}" data-file-card data-name="{{.DisplayPath}}" data-coverage="{{.Stats.Percent}}">
         <details open>
-          <summary>
+          <Stats>
             <div class="file-header">
               <div>
                 <h3 class="file-title">{{.DisplayPath}}</h3>
                 <div class="file-meta">
-                  <span class="pill">{{.Summary.CoveredStatements}} / {{.Summary.TotalStatements}} statements</span>
+                  <span class="pill">{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} statements</span>
                   <span class="pill">{{.Blocks}} blocks</span>
-                  <span class="pill">{{.Summary.MissedLines}} missed lines</span>
+                  <span class="pill">{{.Stats.MissedLines}} missed lines</span>
                   {{if not .Found}}<span class="pill">source missing</span>{{end}}
                 </div>
               </div>
-              <div class="coverage-number">{{pct .Summary.Percent}}</div>
+              <div class="coverage-number">{{pct .Stats.Percent}}</div>
             </div>
-          </summary>
+          </Stats>
           {{if .Found}}
           <div class="source-wrap">
             <table class="source" aria-label="Source coverage for {{.DisplayPath}}">
@@ -903,7 +901,7 @@ const reportTemplate = `<!doctype html>
       pieLabel.textContent = slice.dataset.name;
 
       if (!directoryTooltip) return;
-      directoryTooltip.textContent = slice.dataset.name + ' - ' + slice.dataset.coverage + ' - ' + slice.dataset.lines + ' lines - ' + slice.dataset.share;
+      directoryTooltip.textContent = slice.dataset.name + ': ' + slice.dataset.coverage + '; ' + slice.dataset.lines + ' lines, ' + slice.dataset.share + ' of total';
       directoryTooltip.classList.add('visible');
 
       const pie = slice.closest('.directory-pie');

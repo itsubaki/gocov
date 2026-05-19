@@ -1,6 +1,6 @@
 package report
 
-type Summary struct {
+type Stats struct {
 	TotalStatements   int
 	CoveredStatements int
 	TotalLines        int
@@ -12,7 +12,7 @@ type Summary struct {
 	Status            string
 }
 
-func (s *Summary) Weight() int {
+func (s *Stats) Weight() int {
 	if s.TotalLines > 0 {
 		return s.TotalLines
 	}
@@ -20,17 +20,17 @@ func (s *Summary) Weight() int {
 	return s.TotalStatements
 }
 
-func (s *Summary) Add(another Summary) {
-	s.TotalStatements += another.TotalStatements
-	s.CoveredStatements += another.CoveredStatements
-	s.TotalLines += another.TotalLines
-	s.CoveredLines += another.CoveredLines
-	s.PartialLines += another.PartialLines
-	s.MissedLines += another.MissedLines
-	s.TotalFiles += another.TotalFiles
+func (s *Stats) Add(a Stats) {
+	s.TotalStatements += a.TotalStatements
+	s.CoveredStatements += a.CoveredStatements
+	s.TotalLines += a.TotalLines
+	s.CoveredLines += a.CoveredLines
+	s.PartialLines += a.PartialLines
+	s.MissedLines += a.MissedLines
+	s.TotalFiles += a.TotalFiles
 }
 
-func (s *Summary) Increment(lines []Line) {
+func (s *Stats) Increment(lines []Line) {
 	for _, line := range lines {
 		switch line.State {
 		case "covered":
@@ -46,7 +46,7 @@ func (s *Summary) Increment(lines []Line) {
 	}
 }
 
-func (s *Summary) Refresh() {
+func (s *Stats) Refresh() {
 	div := func(a, b int) float64 {
 		if b == 0 {
 			return 0

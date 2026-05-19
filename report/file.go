@@ -18,13 +18,13 @@ type File struct {
 	Directory   string
 	Found       bool
 	Blocks      int
-	Summary     Summary
+	Stats       Stats
 	Lines       []Line
 }
 
 func (f *File) SetLines(lines []Line) {
 	f.Lines = lines
-	f.Summary.Increment(lines)
+	f.Stats.Increment(lines)
 }
 
 func NewFile(
@@ -52,9 +52,9 @@ func NewFile(
 	}
 
 	for _, block := range blocks {
-		file.Summary.TotalStatements += block.Statements
+		file.Stats.TotalStatements += block.Statements
 		if block.Count > 0 {
-			file.Summary.CoveredStatements += block.Statements
+			file.Stats.CoveredStatements += block.Statements
 		}
 	}
 
@@ -67,7 +67,7 @@ func NewFile(
 		file.SetLines(newLines(lines, blocks))
 	}
 
-	file.Summary.Refresh()
+	file.Stats.Refresh()
 	return file, nil
 }
 

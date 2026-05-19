@@ -11,8 +11,8 @@ type DirectoryNode struct {
 	name        string
 	displayPath string
 	depth       int
-	summary     report.Summary
-	selfSummary report.Summary
+	Stats       report.Stats
+	SelfStats   report.Stats
 	children    []*DirectoryNode
 	childByName map[string]*DirectoryNode
 }
@@ -39,39 +39,39 @@ func NewDirectoryNode(dirs []report.Directory) *DirectoryNode {
 	}
 
 	for _, dir := range dirs {
-		if dir.Summary.Weight() == 0 {
+		if dir.Stats.Weight() == 0 {
 			continue
 		}
 
-		root.AddSummary(dir.Summary)
+		root.AddStats(dir.Stats)
 		if dir.Name == "root" {
-			root.AddSelfSummary(dir.Summary)
+			root.AddSelfStats(dir.Stats)
 			continue
 		}
 
 		node, parts := root, pathParts(dir.Name)
 		for idx, part := range parts {
 			node = node.AddChild(part, strings.Join(parts[:idx+1], "/"))
-			node.AddSummary(dir.Summary)
+			node.AddStats(dir.Stats)
 		}
 
-		node.AddSelfSummary(dir.Summary)
+		node.AddSelfStats(dir.Stats)
 	}
 
 	return root.Reflesh().Sort()
 }
 
-func (n *DirectoryNode) AddSummary(s report.Summary) {
-	n.summary.Add(s)
+func (n *DirectoryNode) AddStats(s report.Stats) {
+	n.Stats.Add(s)
 }
 
-func (n *DirectoryNode) AddSelfSummary(s report.Summary) {
-	n.selfSummary.Add(s)
+func (n *DirectoryNode) AddSelfStats(s report.Stats) {
+	n.SelfStats.Add(s)
 }
 
 func (n *DirectoryNode) MaxDepth() int {
 	depth := n.depth
-	if len(n.children) > 0 && n.selfSummary.Weight() > 0 {
+	if len(n.children) > 0 && n.SelfStats.Weight() > 0 {
 		depth = max(depth, n.depth+1)
 	}
 
@@ -100,8 +100,8 @@ func (n *DirectoryNode) AddChild(name, displayPath string) *DirectoryNode {
 }
 
 func (n *DirectoryNode) Reflesh() *DirectoryNode {
-	n.summary.Refresh()
-	n.selfSummary.Refresh()
+	n.Stats.Refresh()
+	n.SelfStats.Refresh()
 
 	for _, child := range n.children {
 		child.Reflesh()

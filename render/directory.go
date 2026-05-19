@@ -9,7 +9,7 @@ import (
 
 func NewDirectorySlice(rep report.Report) []Directory {
 	root := NewDirectoryNode(rep.Directories)
-	total := root.summary.Weight()
+	total := root.Stats.Weight()
 	if total <= 0 {
 		return nil
 	}
@@ -33,7 +33,7 @@ func appendDir(
 	total int,
 ) []Directory {
 	slices := append(dirs, NewDirectory(
-		node.summary,
+		node.Stats,
 		node.displayPath,
 		node.depth,
 		start, end,
@@ -44,13 +44,13 @@ func appendDir(
 		return slices
 	}
 
-	weight := node.summary.Weight()
+	weight := node.Stats.Weight()
 	if weight <= 0 {
 		return slices
 	}
 
 	next, span := start, end-start
-	if selfWeight := node.selfSummary.Weight(); selfWeight > 0 {
+	if selfWeight := node.SelfStats.Weight(); selfWeight > 0 {
 		path := "root files"
 		if node.displayPath != "root" {
 			path = node.displayPath + " files"
@@ -58,7 +58,7 @@ func appendDir(
 
 		end := next + span*float64(selfWeight)/float64(weight)
 		slices = append(slices, NewDirectory(
-			node.selfSummary,
+			node.SelfStats,
 			path,
 			node.depth+1,
 			next,
@@ -71,7 +71,7 @@ func appendDir(
 	}
 
 	for _, child := range node.children {
-		childWeight := child.summary.Weight()
+		childWeight := child.Stats.Weight()
 		if childWeight <= 0 {
 			continue
 		}
@@ -103,7 +103,7 @@ type Directory struct {
 }
 
 func NewDirectory(
-	summary report.Summary,
+	stats report.Stats,
 	name string,
 	depth int,
 	start float64,
@@ -114,11 +114,11 @@ func NewDirectory(
 	return Directory{
 		Name:     name,
 		Depth:    depth,
-		Lines:    summary.Weight(),
+		Lines:    stats.Weight(),
 		Path:     donutSegmentPath(start, end, depth, ringCount),
-		Color:    coverageColor(summary.Percent),
-		Coverage: percent(summary.Percent),
-		Share:    sharePercent(summary.Weight(), total),
+		Color:    coverageColor(stats.Percent),
+		Coverage: percent(stats.Percent),
+		Share:    sharePercent(stats.Weight(), total),
 	}
 }
 

@@ -19,7 +19,7 @@ type Report struct {
 	OutputPath   string
 	Mode         string
 	GeneratedAt  time.Time
-	Summary      Summary
+	Stats        Stats
 	Files        []File
 	Directories  []Directory
 	MissingFiles []string
@@ -31,14 +31,14 @@ func (r *Report) AddFile(file File, profileFile string) {
 	}
 
 	r.Files = append(r.Files, file)
-	r.Summary.TotalFiles = len(r.Files)
-	r.Summary.Add(file.Summary)
-	r.Summary.Refresh()
+	r.Stats.TotalFiles = len(r.Files)
+	r.Stats.Add(file.Stats)
+	r.Stats.Refresh()
 }
 
 func (r *Report) AddDirs(dirs map[string]*Directory) {
 	for _, dir := range dirs {
-		dir.Summary.Refresh()
+		dir.Stats.Refresh()
 		r.Directories = append(r.Directories, *dir)
 	}
 
@@ -56,8 +56,8 @@ func (r *Report) AddDirs(dirs map[string]*Directory) {
 }
 
 type Directory struct {
-	Name    string
-	Summary Summary
+	Name  string
+	Stats Stats
 }
 
 type Line struct {
@@ -111,14 +111,14 @@ func New(prof profile.Profile, opts Options) (Report, error) {
 		dir, ok := dirs[f.Directory]
 		if !ok {
 			dirs[f.Directory] = &Directory{
-				Name:    f.Directory,
-				Summary: f.Summary,
+				Name:  f.Directory,
+				Stats: f.Stats,
 			}
 
 			continue
 		}
 
-		dir.Summary.Add(f.Summary)
+		dir.Stats.Add(f.Stats)
 	}
 
 	rep.AddDirs(dirs)
