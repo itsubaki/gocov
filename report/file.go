@@ -27,12 +27,7 @@ func (f *File) SetLines(lines []Line) {
 	f.Stats.Increment(lines)
 }
 
-func NewFile(
-	rootPath string,
-	modulePath string,
-	profileFile string,
-	idx int,
-	blocks []profile.Block,
+func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []profile.Block,
 ) (File, error) {
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
