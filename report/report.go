@@ -12,6 +12,18 @@ import (
 	"github.com/itsubaki/gocov/profile"
 )
 
+type Directory struct {
+	Name  string
+	Stats Stats
+}
+
+type Options struct {
+	RootPath    string
+	ProfilePath string
+	OutputPath  string
+	GeneratedAt time.Time
+}
+
 type Report struct {
 	RootPath     string
 	ModulePath   string
@@ -53,25 +65,6 @@ func (r *Report) AddDirs(dirs map[string]*Directory) {
 	for i := range r.Files {
 		r.Files[i].ID = fmt.Sprintf("file-%d", i+1)
 	}
-}
-
-type Directory struct {
-	Name  string
-	Stats Stats
-}
-
-type Line struct {
-	Number int
-	Code   string
-	Hits   string
-	State  string
-}
-
-type Options struct {
-	RootPath    string
-	ProfilePath string
-	OutputPath  string
-	GeneratedAt time.Time
 }
 
 func New(prof profile.Profile, opts Options) (Report, error) {
