@@ -54,27 +54,6 @@ const reportTemplate = `<!doctype html>
       padding: 24px 18px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 22px;
-      font-weight: 800;
-      font-size: 22px;
-    }
-
-    .brand-mark {
-      display: inline-grid;
-      place-items: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      background: var(--ink);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 900;
-    }
-
     .search {
       width: 100%;
       height: 40px;
