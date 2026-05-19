@@ -1,9 +1,12 @@
 package report
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/itsubaki/gocov/profile"
@@ -22,55 +25,34 @@ type Report struct {
 	MissingFiles []string
 }
 
-type File struct {
-	ID          string
-	DisplayPath string
-	ProfilePath string
-	SourcePath  string
-	Directory   string
-	Found       bool
-	Blocks      int
-	Summary     Summary
-	Lines       []Line
+func (r *Report) AddFile(file File, profileFile string) {
+	if !file.Found {
+		r.MissingFiles = append(r.MissingFiles, profileFile)
+	}
+
+	r.Files = append(r.Files, file)
+	r.Summary.TotalFiles = len(r.Files)
+	r.Summary.Add(file.Summary)
+	r.Summary.Refresh()
 }
 
-func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []profile.Block) (File, error) {
-	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
-	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
-	dirName := filepath.ToSlash(filepath.Dir(displayPath))
-	if dirName == "." {
-		dirName = "root"
+func (r *Report) AddDirs(dirs map[string]*Directory) {
+	for _, dir := range dirs {
+		dir.Summary.Refresh()
+		r.Directories = append(r.Directories, *dir)
 	}
 
-	file := File{
-		ID:          fmt.Sprintf("file-%d", idx+1),
-		DisplayPath: displayPath,
-		ProfilePath: profileFile,
-		SourcePath:  sourcePath,
-		Directory:   dirName,
-		Found:       found,
-		Blocks:      len(blocks),
+	sort.Slice(r.Directories, func(i, j int) bool {
+		return r.Directories[i].Name < r.Directories[j].Name
+	})
+
+	sort.Slice(r.Files, func(i, j int) bool {
+		return r.Files[i].DisplayPath < r.Files[j].DisplayPath
+	})
+
+	for i := range r.Files {
+		r.Files[i].ID = fmt.Sprintf("file-%d", i+1)
 	}
-
-	for _, block := range blocks {
-		file.Summary.TotalStatements += block.Statements
-		if block.Count > 0 {
-			file.Summary.CoveredStatements += block.Statements
-		}
-	}
-
-	if found {
-		lines, err := sourceLines(sourcePath)
-		if err != nil {
-			return File{}, fmt.Errorf("read source %s: %w", sourcePath, err)
-		}
-
-		file.Lines = newLines(lines, blocks)
-		file.Summary.Count(file.Lines)
-	}
-
-	file.Summary.Refresh()
-	return file, nil
 }
 
 type Directory struct {
@@ -85,76 +67,6 @@ type Line struct {
 	State  string
 }
 
-type Summary struct {
-	TotalStatements   int
-	CoveredStatements int
-	TotalLines        int
-	CoveredLines      int
-	PartialLines      int
-	MissedLines       int
-	TotalFiles        int
-	Percent           float64
-	Status            string
-}
-
-func (s *Summary) Weight() int {
-	if s.TotalLines > 0 {
-		return s.TotalLines
-	}
-
-	return s.TotalStatements
-}
-
-func (s *Summary) Add(another Summary) {
-	s.TotalStatements += another.TotalStatements
-	s.CoveredStatements += another.CoveredStatements
-	s.TotalLines += another.TotalLines
-	s.CoveredLines += another.CoveredLines
-	s.PartialLines += another.PartialLines
-	s.MissedLines += another.MissedLines
-	s.TotalFiles += another.TotalFiles
-}
-
-func (s *Summary) Refresh() {
-	div := func(a, b int) float64 {
-		if b == 0 {
-			return 0
-		}
-
-		return float64(a) / float64(b)
-	}
-
-	s.Percent = 100
-	if s.TotalStatements > 0 {
-		s.Percent = div(s.CoveredStatements, s.TotalStatements) * 100
-	}
-
-	switch {
-	case s.Percent >= 80:
-		s.Status = "high"
-	case s.Percent >= 50:
-		s.Status = "medium"
-	default:
-		s.Status = "low"
-	}
-}
-
-func (s *Summary) Count(lines []Line) {
-	for _, line := range lines {
-		switch line.State {
-		case "covered":
-			s.CoveredLines++
-			s.TotalLines++
-		case "partial":
-			s.PartialLines++
-			s.TotalLines++
-		case "missed":
-			s.MissedLines++
-			s.TotalLines++
-		}
-	}
-}
-
 type Options struct {
 	RootPath    string
 	ProfilePath string
@@ -163,74 +75,70 @@ type Options struct {
 }
 
 func New(prof profile.Profile, opts Options) (Report, error) {
-	modulePath := modulePath(opts.RootPath)
-	blocksByFile := make(map[string][]profile.Block)
-	for _, block := range prof.Blocks {
-		blocksByFile[block.File] = append(blocksByFile[block.File], block)
-	}
-
-	files := make([]string, 0, len(blocksByFile))
-	for f := range blocksByFile {
-		files = append(files, f)
-	}
-	sort.Strings(files)
-
 	rep := Report{
 		GeneratedAt: opts.GeneratedAt,
 		RootPath:    opts.RootPath,
 		ProfilePath: opts.ProfilePath,
 		OutputPath:  opts.OutputPath,
 		Mode:        prof.Mode,
-		ModulePath:  modulePath,
+		ModulePath:  modulePath(opts.RootPath),
 	}
 
-	dirs := make(map[string]*Directory)
-	for idx, profileFile := range files {
-		blocks := blocksByFile[profileFile]
-		file, err := NewFile(opts.RootPath, modulePath, profileFile, idx, blocks)
+	blocks := make(map[string][]profile.Block)
+	for _, b := range prof.Blocks {
+		blocks[b.File] = append(blocks[b.File], b)
+	}
+
+	files := make([]string, 0, len(blocks))
+	for b := range blocks {
+		files = append(files, b)
+	}
+	sort.Strings(files)
+
+	// add files
+	for i, f := range files {
+		file, err := NewFile(opts.RootPath, rep.ModulePath, f, i, blocks[f])
 		if err != nil {
-			return Report{}, fmt.Errorf("create file report for %s: %w", profileFile, err)
+			return Report{}, fmt.Errorf("create file report for %s: %w", f, err)
 		}
 
-		if !file.Found {
-			rep.MissingFiles = append(rep.MissingFiles, profileFile)
-		}
+		rep.AddFile(file, f)
+	}
 
-		rep.Summary.Add(file.Summary)
-		rep.Files = append(rep.Files, file)
-
-		dir, ok := dirs[file.Directory]
+	// add directories
+	dirs := make(map[string]*Directory)
+	for _, f := range rep.Files {
+		dir, ok := dirs[f.Directory]
 		if !ok {
-			dirs[file.Directory] = &Directory{
-				Name:    file.Directory,
-				Summary: file.Summary,
+			dirs[f.Directory] = &Directory{
+				Name:    f.Directory,
+				Summary: f.Summary,
 			}
 
 			continue
 		}
 
-		dir.Summary.Add(file.Summary)
+		dir.Summary.Add(f.Summary)
 	}
 
-	rep.Summary.TotalFiles = len(rep.Files)
-	rep.Summary.Refresh()
-
-	for _, dir := range dirs {
-		dir.Summary.Refresh()
-		rep.Directories = append(rep.Directories, *dir)
-	}
-
-	sort.Slice(rep.Directories, func(i, j int) bool {
-		return rep.Directories[i].Name < rep.Directories[j].Name
-	})
-
-	sort.Slice(rep.Files, func(i, j int) bool {
-		return rep.Files[i].DisplayPath < rep.Files[j].DisplayPath
-	})
-
-	for i := range rep.Files {
-		rep.Files[i].ID = fmt.Sprintf("file-%d", i+1)
-	}
-
+	rep.AddDirs(dirs)
 	return rep, nil
+}
+
+func modulePath(root string) string {
+	file, err := os.Open(filepath.Join(root, "go.mod"))
+	if err != nil {
+		return ""
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if module, ok := strings.CutPrefix(line, "module "); ok {
+			return strings.TrimSpace(module)
+		}
+	}
+
+	return ""
 }

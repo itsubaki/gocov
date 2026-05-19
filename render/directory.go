@@ -24,7 +24,14 @@ func NewDirectorySlice(rep report.Report) []Directory {
 	)
 }
 
-func appendDir(dirs []Directory, node *DirectoryNode, start, end float64, ringCount, total int) []Directory {
+func appendDir(
+	dirs []Directory,
+	node *DirectoryNode,
+	start float64,
+	end float64,
+	ringCount int,
+	total int,
+) []Directory {
 	slices := append(dirs, NewDirectory(
 		node.summary,
 		node.displayPath,
@@ -95,7 +102,15 @@ type Directory struct {
 	Share    string
 }
 
-func NewDirectory(summary report.Summary, name string, depth int, start, end float64, ringCount, total int) Directory {
+func NewDirectory(
+	summary report.Summary,
+	name string,
+	depth int,
+	start float64,
+	end float64,
+	ringCount int,
+	total int,
+) Directory {
 	return Directory{
 		Name:     name,
 		Depth:    depth,
