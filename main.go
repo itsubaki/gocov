@@ -69,7 +69,11 @@ func run(input, output, dir string) error {
 	if err != nil {
 		return err
 	}
-	defer close()
+	defer func() {
+		if err := close(); err != nil {
+			fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
+		}
+	}()
 
 	if err := render.HTML(file, rep); err != nil {
 		return err

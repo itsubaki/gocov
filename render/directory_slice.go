@@ -66,22 +66,19 @@ func appendDir(
 	}
 
 	for _, v := range node.children {
-		w := v.Stats.Weight()
-		if w <= 0 {
-			continue
+		if w := v.Stats.Weight(); w > 0 {
+			end := next + span*float64(w)/float64(weight)
+			slices = appendDir(
+				slices,
+				v,
+				next,
+				end,
+				ringCount,
+				total,
+			)
+
+			next = end
 		}
-
-		end := next + span*float64(w)/float64(weight)
-		slices = appendDir(
-			slices,
-			v,
-			next,
-			end,
-			ringCount,
-			total,
-		)
-
-		next = end
 	}
 
 	return slices

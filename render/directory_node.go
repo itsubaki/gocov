@@ -11,6 +11,7 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 	pathParts := func(path string) []string {
 		slash := strings.ReplaceAll(path, "\\", "/")
 		parts := strings.Split(slash, "/")
+
 		out := make([]string, 0, len(parts))
 		for _, part := range parts {
 			if part == "" || part == "." {
@@ -34,19 +35,19 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 			continue
 		}
 
-		root.AddStats(dir.Stats)
+		root.Merge(dir.Stats)
 		if dir.Name == "root" {
-			root.AddSelfStats(dir.Stats)
+			root.MergeSelf(dir.Stats)
 			continue
 		}
 
 		node, parts := root, pathParts(dir.Name)
 		for i, p := range parts {
-			node = node.AddChild(p, strings.Join(parts[:i+1], "/"))
-			node.AddStats(dir.Stats)
+			node = node.NewChiled(p, strings.Join(parts[:i+1], "/"))
+			node.Merge(dir.Stats)
 		}
 
-		node.AddSelfStats(dir.Stats)
+		node.MergeSelf(dir.Stats)
 	}
 
 	root.Refresh()
@@ -63,11 +64,11 @@ type DirectoryNode struct {
 	childByName map[string]*DirectoryNode
 }
 
-func (n *DirectoryNode) AddStats(s report.Stats) {
+func (n *DirectoryNode) Merge(s report.Stats) {
 	n.Stats.Merge(s)
 }
 
-func (n *DirectoryNode) AddSelfStats(s report.Stats) {
+func (n *DirectoryNode) MergeSelf(s report.Stats) {
 	n.SelfStats.Merge(s)
 }
 
@@ -84,7 +85,7 @@ func (n *DirectoryNode) MaxDepth() int {
 	return depth
 }
 
-func (n *DirectoryNode) AddChild(name, displayPath string) *DirectoryNode {
+func (n *DirectoryNode) NewChiled(name, displayPath string) *DirectoryNode {
 	if child := n.childByName[name]; child != nil {
 		return child
 	}

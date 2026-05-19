@@ -60,10 +60,10 @@ func (s *Stats) Refresh() {
 		s.Percent = div(s.CoveredStatements, s.TotalStatements) * 100
 	}
 
-	switch {
-	case s.Percent >= 80:
+	switch v := s.Percent; {
+	case v >= 80:
 		s.Status = "high"
-	case s.Percent >= 50:
+	case v >= 50:
 		s.Status = "medium"
 	default:
 		s.Status = "low"

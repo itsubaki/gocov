@@ -17,7 +17,11 @@ func Parse(path string) (*Profile, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open coverage profile: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	scanner.Buffer(make([]byte, 1024), 1024*1024)

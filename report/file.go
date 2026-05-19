@@ -29,6 +29,7 @@ func (f *File) SetLines(lines []Line) {
 func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profile.Block) (*File, error) {
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
+
 	dirName := filepath.ToSlash(filepath.Dir(displayPath))
 	if dirName == "." {
 		dirName = "root"
