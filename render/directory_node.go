@@ -17,7 +17,7 @@ type DirectoryNode struct {
 	childByName map[string]*DirectoryNode
 }
 
-func NewDirectoryNode(dirs []report.Directory) *DirectoryNode {
+func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 	pathParts := func(path string) []string {
 		slash := strings.ReplaceAll(path, "\\", "/")
 		parts := strings.Split(slash, "/")
@@ -26,6 +26,7 @@ func NewDirectoryNode(dirs []report.Directory) *DirectoryNode {
 			if part == "" || part == "." {
 				continue
 			}
+
 			out = append(out, part)
 		}
 
@@ -50,8 +51,8 @@ func NewDirectoryNode(dirs []report.Directory) *DirectoryNode {
 		}
 
 		node, parts := root, pathParts(dir.Name)
-		for idx, part := range parts {
-			node = node.AddChild(part, strings.Join(parts[:idx+1], "/"))
+		for i, p := range parts {
+			node = node.AddChild(p, strings.Join(parts[:i+1], "/"))
 			node.AddStats(dir.Stats)
 		}
 
@@ -76,8 +77,8 @@ func (n *DirectoryNode) MaxDepth() int {
 		depth = max(depth, n.depth+1)
 	}
 
-	for _, child := range n.children {
-		depth = max(depth, child.MaxDepth())
+	for _, v := range n.children {
+		depth = max(depth, v.MaxDepth())
 	}
 
 	return depth
@@ -104,8 +105,8 @@ func (n *DirectoryNode) Refresh() {
 	n.Stats.Refresh()
 	n.SelfStats.Refresh()
 
-	for _, child := range n.children {
-		child.Refresh()
+	for _, v := range n.children {
+		v.Refresh()
 	}
 
 	nsort(n)
@@ -116,7 +117,7 @@ func nsort(n *DirectoryNode) {
 		return n.children[i].displayPath < n.children[j].displayPath
 	})
 
-	for _, child := range n.children {
-		nsort(child)
+	for _, v := range n.children {
+		nsort(v)
 	}
 }

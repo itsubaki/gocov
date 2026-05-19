@@ -17,45 +17,45 @@ type Block struct {
 	Count      int64
 }
 
-func parseLine(line string) (Block, error) {
+func parseLine(line string) (*Block, error) {
 	fields := strings.Fields(line)
 	if len(fields) != 3 {
-		return Block{}, fmt.Errorf("invalid line: %q", line)
+		return nil, fmt.Errorf("invalid line: %q", line)
 	}
 
 	location := fields[0]
 	colon := strings.LastIndex(location, ":")
 	if colon < 1 || colon == len(location)-1 {
-		return Block{}, fmt.Errorf("invalid location %q", location)
+		return nil, fmt.Errorf("invalid location %q", location)
 	}
 
 	startEnd := location[colon+1:]
 	points := strings.Split(startEnd, ",")
 	if len(points) != 2 {
-		return Block{}, fmt.Errorf("invalid range %q", startEnd)
+		return nil, fmt.Errorf("invalid range %q", startEnd)
 	}
 
 	startLine, startCol, err := parsePoint(points[0])
 	if err != nil {
-		return Block{}, fmt.Errorf("invalid start point: %w", err)
+		return nil, fmt.Errorf("invalid start point: %w", err)
 	}
 
 	endLine, endCol, err := parsePoint(points[1])
 	if err != nil {
-		return Block{}, fmt.Errorf("invalid end point: %w", err)
+		return nil, fmt.Errorf("invalid end point: %w", err)
 	}
 
 	statements, err := strconv.Atoi(fields[1])
 	if err != nil {
-		return Block{}, fmt.Errorf("invalid statement count %q", fields[1])
+		return nil, fmt.Errorf("invalid statement count %q", fields[1])
 	}
 
 	count, err := strconv.ParseInt(fields[2], 10, 64)
 	if err != nil {
-		return Block{}, fmt.Errorf("invalid execution count %q", fields[2])
+		return nil, fmt.Errorf("invalid execution count %q", fields[2])
 	}
 
-	return Block{
+	return &Block{
 		File:       filepath.ToSlash(location[:colon]),
 		StartLine:  startLine,
 		StartCol:   startCol,

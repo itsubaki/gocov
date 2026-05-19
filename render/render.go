@@ -10,7 +10,7 @@ import (
 	"github.com/itsubaki/gocov/report"
 )
 
-func HTML(w io.Writer, rep report.Report) error {
+func HTML(w io.Writer, rep *report.Report) error {
 	tmpl, err := template.New("report").Funcs(template.FuncMap{
 		"directorySlices": NewDirectorySlice,
 		"sharePct":        sharePercent,

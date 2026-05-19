@@ -9,13 +9,13 @@ import (
 
 type Profile struct {
 	Mode   string
-	Blocks []Block
+	Blocks []*Block
 }
 
-func Parse(path string) (Profile, error) {
+func Parse(path string) (*Profile, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return Profile{}, fmt.Errorf("open coverage profile: %w", err)
+		return nil, fmt.Errorf("open coverage profile: %w", err)
 	}
 	defer file.Close()
 
@@ -34,7 +34,7 @@ func Parse(path string) (Profile, error) {
 		if prof.Mode == "" {
 			mode, ok := strings.CutPrefix(line, "mode:")
 			if !ok {
-				return Profile{}, fmt.Errorf("line %d: expected mode header", lineNo)
+				return nil, fmt.Errorf("line %d: expected mode header", lineNo)
 			}
 
 			prof.Mode = strings.TrimSpace(mode)
@@ -43,19 +43,19 @@ func Parse(path string) (Profile, error) {
 
 		block, err := parseLine(line)
 		if err != nil {
-			return Profile{}, fmt.Errorf("line %d: %w", lineNo, err)
+			return nil, fmt.Errorf("line %d: %w", lineNo, err)
 		}
 
 		prof.Blocks = append(prof.Blocks, block)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return Profile{}, fmt.Errorf("read coverage profile: %w", err)
+		return nil, fmt.Errorf("read coverage profile: %w", err)
 	}
 
 	if prof.Mode == "" {
-		return Profile{}, fmt.Errorf("missing mode header %q", path)
+		return nil, fmt.Errorf("missing mode header %q", path)
 	}
 
-	return prof, nil
+	return &prof, nil
 }

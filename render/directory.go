@@ -7,7 +7,7 @@ import (
 	"github.com/itsubaki/gocov/report"
 )
 
-func NewDirectorySlice(rep report.Report) []Directory {
+func NewDirectorySlice(rep *report.Report) []*Directory {
 	root := NewDirectoryNode(rep.Directories)
 	total := root.Stats.Weight()
 	if total <= 0 {
@@ -15,7 +15,7 @@ func NewDirectorySlice(rep report.Report) []Directory {
 	}
 
 	return appendDir(
-		[]Directory{},
+		[]*Directory{},
 		root,
 		-90,
 		270,
@@ -25,13 +25,13 @@ func NewDirectorySlice(rep report.Report) []Directory {
 }
 
 func appendDir(
-	dirs []Directory,
+	dirs []*Directory,
 	node *DirectoryNode,
 	start float64,
 	end float64,
 	ringCount int,
 	total int,
-) []Directory {
+) []*Directory {
 	slices := append(dirs, NewDirectory(
 		node.Stats,
 		node.displayPath,
@@ -50,13 +50,13 @@ func appendDir(
 	}
 
 	next, span := start, end-start
-	if selfWeight := node.SelfStats.Weight(); selfWeight > 0 {
+	if w := node.SelfStats.Weight(); w > 0 {
 		path := "root files"
 		if node.displayPath != "root" {
 			path = node.displayPath + " files"
 		}
 
-		end := next + span*float64(selfWeight)/float64(weight)
+		end := next + span*float64(w)/float64(weight)
 		slices = append(slices, NewDirectory(
 			node.SelfStats,
 			path,
@@ -70,16 +70,16 @@ func appendDir(
 		next = end
 	}
 
-	for _, child := range node.children {
-		childWeight := child.Stats.Weight()
-		if childWeight <= 0 {
+	for _, v := range node.children {
+		w := v.Stats.Weight()
+		if w <= 0 {
 			continue
 		}
 
-		end := next + span*float64(childWeight)/float64(weight)
+		end := next + span*float64(w)/float64(weight)
 		slices = appendDir(
 			slices,
-			child,
+			v,
 			next,
 			end,
 			ringCount,
@@ -110,8 +110,8 @@ func NewDirectory(
 	end float64,
 	ringCount int,
 	total int,
-) Directory {
-	return Directory{
+) *Directory {
+	return &Directory{
 		Name:     name,
 		Depth:    depth,
 		Lines:    stats.Weight(),
@@ -180,15 +180,15 @@ func donutSegmentPath(start, end float64, depth, ringCount int) string {
 	)
 }
 
-func ringRadii(depth, ringCount int) (float64, float64) {
+func ringRadii(depth, count int) (float64, float64) {
 	const centerRadius = 0.34
-	if ringCount <= 0 {
+	if count <= 0 {
 		return centerRadius, 1
 	}
 
-	ringWidth := (1 - centerRadius) / float64(ringCount)
-	inner := centerRadius + float64(depth)*ringWidth
-	outer := centerRadius + float64(depth+1)*ringWidth
+	width := (1 - centerRadius) / float64(count)
+	inner := centerRadius + float64(depth)*width
+	outer := centerRadius + float64(depth+1)*width
 	return inner, min(outer, 1)
 }
 
@@ -213,9 +213,7 @@ func coverageColor(v float64) string {
 		v = 0
 	}
 
-	v = min(max(v, 0), 100)
-
-	switch {
+	switch v = min(max(v, 0), 100); {
 	case v >= 80:
 		return coverageBandColor(v, 80, 100, 118, 145, 54, 40)
 	case v >= 60:

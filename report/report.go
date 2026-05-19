@@ -32,12 +32,12 @@ type Report struct {
 	Mode         string
 	GeneratedAt  time.Time
 	Stats        Stats
-	Files        []File
-	Directories  []Directory
 	MissingFiles []string
+	Files        []*File
+	Directories  []*Directory
 }
 
-func (r *Report) AddFile(file File, profileFile string) {
+func (r *Report) AddFile(file *File, profileFile string) {
 	if !file.Found {
 		r.MissingFiles = append(r.MissingFiles, profileFile)
 	}
@@ -51,7 +51,7 @@ func (r *Report) AddFile(file File, profileFile string) {
 func (r *Report) AddDirs(dirs map[string]*Directory) {
 	for _, dir := range dirs {
 		dir.Stats.Refresh()
-		r.Directories = append(r.Directories, *dir)
+		r.Directories = append(r.Directories, dir)
 	}
 
 	sort.Slice(r.Directories, func(i, j int) bool {
@@ -67,8 +67,8 @@ func (r *Report) AddDirs(dirs map[string]*Directory) {
 	}
 }
 
-func New(prof profile.Profile, opts Options) (Report, error) {
-	rep := Report{
+func New(prof *profile.Profile, opts Options) (*Report, error) {
+	rep := &Report{
 		GeneratedAt: opts.GeneratedAt,
 		RootPath:    opts.RootPath,
 		ProfilePath: opts.ProfilePath,
@@ -77,7 +77,7 @@ func New(prof profile.Profile, opts Options) (Report, error) {
 		ModulePath:  modulePath(opts.RootPath),
 	}
 
-	blocks := make(map[string][]profile.Block)
+	blocks := make(map[string][]*profile.Block)
 	for _, b := range prof.Blocks {
 		blocks[b.File] = append(blocks[b.File], b)
 	}
@@ -92,7 +92,7 @@ func New(prof profile.Profile, opts Options) (Report, error) {
 	for i, f := range files {
 		file, err := NewFile(opts.RootPath, rep.ModulePath, f, i, blocks[f])
 		if err != nil {
-			return Report{}, fmt.Errorf("create file report for %s: %w", f, err)
+			return nil, fmt.Errorf("create file report for %s: %w", f, err)
 		}
 
 		rep.AddFile(file, f)
@@ -101,17 +101,15 @@ func New(prof profile.Profile, opts Options) (Report, error) {
 	// add directories
 	dirs := make(map[string]*Directory)
 	for _, f := range rep.Files {
-		dir, ok := dirs[f.Directory]
-		if !ok {
-			dirs[f.Directory] = &Directory{
-				Name:  f.Directory,
-				Stats: f.Stats,
-			}
-
+		if dir, ok := dirs[f.Directory]; ok {
+			dir.Stats.Add(f.Stats)
 			continue
 		}
 
-		dir.Stats.Add(f.Stats)
+		dirs[f.Directory] = &Directory{
+			Name:  f.Directory,
+			Stats: f.Stats,
+		}
 	}
 
 	rep.AddDirs(dirs)

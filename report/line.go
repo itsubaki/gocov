@@ -14,7 +14,7 @@ type Line struct {
 	State  string
 }
 
-func NewLines(sourceLines []string, blocks []profile.Block) []Line {
+func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 	type LineCoverage struct {
 		covered bool
 		missed  bool
@@ -22,9 +22,9 @@ func NewLines(sourceLines []string, blocks []profile.Block) []Line {
 	}
 
 	coverage := make([]LineCoverage, len(sourceLines)+1)
-	for _, block := range blocks {
-		start, end := max(1, block.StartLine), block.EndLine
-		if block.EndCol == 1 && end > start {
+	for _, v := range blocks {
+		start, end := max(1, v.StartLine), v.EndLine
+		if v.EndCol == 1 && end > start {
 			end--
 		}
 
@@ -34,9 +34,9 @@ func NewLines(sourceLines []string, blocks []profile.Block) []Line {
 		}
 
 		for line := start; line <= end; line++ {
-			if block.Count > 0 {
+			if v.Count > 0 {
 				coverage[line].covered = true
-				coverage[line].hits += block.Count
+				coverage[line].hits += v.Count
 				continue
 			}
 
@@ -45,13 +45,10 @@ func NewLines(sourceLines []string, blocks []profile.Block) []Line {
 	}
 
 	lines := make([]Line, 0, len(sourceLines))
-	for idx, code := range sourceLines {
-		lineNo := idx + 1
-		cov := coverage[lineNo]
-		state := "neutral"
+	for i, code := range sourceLines {
+		lineNo, state, hits := i+1, "neutral", "0"
 
-		var hits string
-		switch {
+		switch cov := coverage[lineNo]; {
 		case cov.covered && cov.missed:
 			state = "partial"
 			hits = formatHits(cov.hits)
