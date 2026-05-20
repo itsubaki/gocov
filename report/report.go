@@ -49,8 +49,8 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 	// files
 	var files []*File
 	var missing []string
-	for i, f := range blockFiles {
-		file, err := NewFile(opts.RootPath, modulePath, f, i, blocks[f])
+	for _, f := range blockFiles {
+		file, err := NewFile(opts.RootPath, modulePath, f, blocks[f])
 		if err != nil {
 			return nil, fmt.Errorf("create file report for %s: %w", f, err)
 		}

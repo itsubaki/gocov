@@ -21,7 +21,7 @@ type File struct {
 	Lines       []Line
 }
 
-func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profile.Block) (*File, error) {
+func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) (*File, error) {
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
 	dirName := filepath.ToSlash(filepath.Dir(displayPath))
@@ -50,7 +50,6 @@ func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profil
 	stats.Update()
 
 	return &File{
-		ID:          fmt.Sprintf("file-%d", idx+1),
 		DisplayPath: displayPath,
 		ProfilePath: profileFile,
 		SourcePath:  sourcePath,
