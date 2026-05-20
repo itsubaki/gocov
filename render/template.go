@@ -478,15 +478,15 @@ const reportTemplate = `<!doctype html>
     }
 
     details { overflow: hidden; }
-    details[open] Stats { border-bottom: 1px solid var(--border); }
+    details[open] summary { border-bottom: 1px solid var(--border); }
 
-    Stats {
+    summary {
       list-style: none;
       cursor: pointer;
       padding: 14px 16px;
     }
 
-    Stats::-webkit-details-marker { display: none; }
+    summary::-webkit-details-marker { display: none; }
 
     .file-header {
       display: grid;
@@ -781,7 +781,7 @@ const reportTemplate = `<!doctype html>
       {{range .Files}}
       <section class="file-card" id="{{.ID}}" data-file-card data-name="{{.DisplayPath}}" data-coverage="{{.Stats.Percent}}">
         <details open>
-          <Stats>
+          <summary>
             <div class="file-header">
               <div>
                 <h3 class="file-title">{{.DisplayPath}}</h3>
@@ -794,7 +794,7 @@ const reportTemplate = `<!doctype html>
               </div>
               <div class="coverage-number">{{pct .Stats.Percent}}</div>
             </div>
-          </Stats>
+          </summary>
           {{if .Found}}
           <div class="source-wrap">
             <table class="source" aria-label="Source coverage for {{.DisplayPath}}">
