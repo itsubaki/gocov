@@ -6,4 +6,5 @@ var (
 	ModulePath  = modulePath
 	SourcePath  = sourcePath
 	DisplayPath = displayPath
+	Div         = div
 )

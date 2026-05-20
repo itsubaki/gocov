@@ -39,16 +39,6 @@ func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) 
 		lines = NewLines(srcLines, blocks)
 	}
 
-	stats := &Stats{}
-	for _, v := range blocks {
-		stats.TotalStatements += v.Statements
-		if v.Count > 0 {
-			stats.CoveredStatements += v.Statements
-		}
-	}
-	stats.Add(lines)
-	stats.Update()
-
 	return &File{
 		DisplayPath: displayPath,
 		ProfilePath: profileFile,
@@ -57,7 +47,7 @@ func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) 
 		Found:       found,
 		Blocks:      len(blocks),
 		Lines:       lines,
-		Stats:       stats,
+		Stats:       NewStatsFrom(lines, blocks),
 	}, nil
 }
 

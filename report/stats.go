@@ -1,5 +1,7 @@
 package report
 
+import "github.com/itsubaki/gocov/profile"
+
 type Stats struct {
 	TotalStatements   int
 	CoveredStatements int
@@ -12,25 +14,25 @@ type Stats struct {
 	Status            string
 }
 
-func (s *Stats) Weight() int {
-	if s.TotalLines > 0 {
-		return s.TotalLines
+func NewStats(files []*File) *Stats {
+	s := &Stats{}
+	for _, f := range files {
+		s = Merge(s, f.Stats)
 	}
 
-	return s.TotalStatements
+	s.TotalFiles = len(files)
+	return s
 }
 
-func (s *Stats) Merge(a *Stats) {
-	s.TotalStatements += a.TotalStatements
-	s.CoveredStatements += a.CoveredStatements
-	s.TotalLines += a.TotalLines
-	s.CoveredLines += a.CoveredLines
-	s.PartialLines += a.PartialLines
-	s.MissedLines += a.MissedLines
-	s.TotalFiles += a.TotalFiles
-}
+func NewStatsFrom(lines []Line, blocks []*profile.Block) *Stats {
+	s := &Stats{}
+	for _, v := range blocks {
+		s.TotalStatements += v.Statements
+		if v.Count > 0 {
+			s.CoveredStatements += v.Statements
+		}
+	}
 
-func (s *Stats) Add(lines []Line) {
 	for _, line := range lines {
 		switch line.State {
 		case "covered":
@@ -44,17 +46,33 @@ func (s *Stats) Add(lines []Line) {
 			s.TotalLines++
 		}
 	}
+
+	s.Update()
+	return s
+}
+
+func Merge(a, b *Stats) *Stats {
+	a.TotalStatements += b.TotalStatements
+	a.CoveredStatements += b.CoveredStatements
+	a.TotalLines += b.TotalLines
+	a.CoveredLines += b.CoveredLines
+	a.PartialLines += b.PartialLines
+	a.MissedLines += b.MissedLines
+	a.TotalFiles += b.TotalFiles
+
+	a.Update()
+	return a
+}
+
+func (s *Stats) Weight() int {
+	if s.TotalLines > 0 {
+		return s.TotalLines
+	}
+
+	return s.TotalStatements
 }
 
 func (s *Stats) Update() {
-	div := func(a, b int) float64 {
-		if b == 0 {
-			return 0
-		}
-
-		return float64(a) / float64(b)
-	}
-
 	s.Percent = 100
 	if s.TotalStatements > 0 {
 		s.Percent = div(s.CoveredStatements, s.TotalStatements) * 100
@@ -68,4 +86,12 @@ func (s *Stats) Update() {
 	default:
 		s.Status = "low"
 	}
+}
+
+func div(a, b int) float64 {
+	if b == 0 {
+		return 0
+	}
+
+	return float64(a) / float64(b)
 }

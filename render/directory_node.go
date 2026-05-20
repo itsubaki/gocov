@@ -47,22 +47,24 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 			continue
 		}
 
-		root.Merge(dir.Stats)
+		// root
+		root.Stats = report.Merge(root.Stats, dir.Stats)
 		if dir.Name == "root" {
-			root.MergeSelf(dir.Stats)
+			root.SelfStats = report.Merge(root.SelfStats, dir.Stats)
 			continue
 		}
 
+		// child
 		node, parts := root, pathParts(dir.Name)
 		for i, p := range parts {
 			node = node.NewChiled(p, strings.Join(parts[:i+1], "/"))
-			node.Merge(dir.Stats)
+			node.Stats = report.Merge(node.Stats, dir.Stats)
 		}
 
-		node.MergeSelf(dir.Stats)
+		node.SelfStats = report.Merge(node.SelfStats, dir.Stats)
 	}
 
-	root.Update()
+	nsort(root)
 	return root
 }
 
@@ -72,14 +74,6 @@ func (n *DirectoryNode) Name() string {
 	}
 
 	return n.displayPath + " files"
-}
-
-func (n *DirectoryNode) Merge(s *report.Stats) {
-	n.Stats.Merge(s)
-}
-
-func (n *DirectoryNode) MergeSelf(s *report.Stats) {
-	n.SelfStats.Merge(s)
 }
 
 func (n *DirectoryNode) MaxDepth() int {
@@ -112,17 +106,6 @@ func (n *DirectoryNode) NewChiled(name, displayPath string) *DirectoryNode {
 	n.children = append(n.children, child)
 	n.childByName[name] = child
 	return child
-}
-
-func (n *DirectoryNode) Update() {
-	n.Stats.Update()
-	n.SelfStats.Update()
-
-	for _, v := range n.children {
-		v.Update()
-	}
-
-	nsort(n)
 }
 
 func nsort(n *DirectoryNode) {

@@ -11,8 +11,7 @@ func NewDirectory(files []*File) []*Directory {
 	dirs := make(map[string]*Directory)
 	for _, f := range files {
 		if dir, ok := dirs[f.Directory]; ok {
-			dir.Stats.Merge(f.Stats)
-			dir.Stats.Update()
+			dir.Stats = Merge(dir.Stats, f.Stats)
 			continue
 		}
 

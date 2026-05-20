@@ -44,9 +44,8 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 	}
 	sort.Strings(blockFiles)
 
-	modulePath := modulePath(opts.RootPath)
-
 	// files
+	modulePath := modulePath(opts.RootPath)
 	var files []*File
 	var missing []string
 	for _, f := range blockFiles {
@@ -71,16 +70,6 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 		files[i].ID = fmt.Sprintf("file-%d", i+1)
 	}
 
-	// stats
-	stats := &Stats{
-		TotalFiles: len(files),
-	}
-
-	for _, f := range files {
-		stats.Merge(f.Stats)
-		stats.Update()
-	}
-
 	return &Report{
 		GeneratedAt:  opts.GeneratedAt,
 		RootPath:     opts.RootPath,
@@ -88,9 +77,9 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 		OutputPath:   opts.OutputPath,
 		Mode:         prof.Mode,
 		ModulePath:   modulePath,
-		Stats:        stats,
 		Files:        files,
 		Directories:  NewDirectory(files),
+		Stats:        NewStats(files),
 		MissingFiles: missing,
 	}, nil
 }
