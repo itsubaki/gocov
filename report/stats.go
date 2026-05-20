@@ -47,7 +47,7 @@ func NewStatsFrom(lines []Line, blocks []*profile.Block) *Stats {
 		}
 	}
 
-	s.Update()
+	update(s)
 	return s
 }
 
@@ -60,7 +60,7 @@ func Merge(a, b *Stats) *Stats {
 	a.MissedLines += b.MissedLines
 	a.TotalFiles += b.TotalFiles
 
-	a.Update()
+	update(a)
 	return a
 }
 
@@ -72,7 +72,7 @@ func (s *Stats) Weight() int {
 	return s.TotalStatements
 }
 
-func (s *Stats) Update() {
+func update(s *Stats) {
 	s.Percent = 100
 	if s.TotalStatements > 0 {
 		s.Percent = div(s.CoveredStatements, s.TotalStatements) * 100
