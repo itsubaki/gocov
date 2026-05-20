@@ -21,11 +21,6 @@ type File struct {
 	Lines       []Line
 }
 
-func (f *File) SetLines(lines []Line) {
-	f.Lines = lines
-	f.Stats.Increment(lines)
-}
-
 func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profile.Block) (*File, error) {
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
@@ -35,7 +30,27 @@ func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profil
 		dirName = "root"
 	}
 
-	file := &File{
+	var lines []Line
+	if found {
+		srcLines, err := sourceLines(sourcePath)
+		if err != nil {
+			return nil, fmt.Errorf("read source %s: %w", sourcePath, err)
+		}
+
+		lines = NewLines(srcLines, blocks)
+	}
+
+	var stats Stats
+	for _, v := range blocks {
+		stats.TotalStatements += v.Statements
+		if v.Count > 0 {
+			stats.CoveredStatements += v.Statements
+		}
+	}
+	stats.Increment(lines)
+	stats.Refresh()
+
+	return &File{
 		ID:          fmt.Sprintf("file-%d", idx+1),
 		DisplayPath: displayPath,
 		ProfilePath: profileFile,
@@ -43,26 +58,9 @@ func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profil
 		Directory:   dirName,
 		Found:       found,
 		Blocks:      len(blocks),
-	}
-
-	for _, v := range blocks {
-		file.Stats.TotalStatements += v.Statements
-		if v.Count > 0 {
-			file.Stats.CoveredStatements += v.Statements
-		}
-	}
-
-	if found {
-		lines, err := sourceLines(sourcePath)
-		if err != nil {
-			return nil, fmt.Errorf("read source %s: %w", sourcePath, err)
-		}
-
-		file.SetLines(NewLines(lines, blocks))
-	}
-
-	file.Stats.Refresh()
-	return file, nil
+		Lines:       lines,
+		Stats:       stats,
+	}, nil
 }
 
 func sourcePath(root, modulePath, profileFile string) (string, bool) {

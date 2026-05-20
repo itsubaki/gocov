@@ -21,6 +21,7 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 		hits    int64
 	}
 
+	// map line number to coverage state
 	cov := make([]LineCoverage, len(sourceLines)+1)
 	for _, v := range blocks {
 		start, end := max(1, v.StartLine), v.EndLine
@@ -44,6 +45,7 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 		}
 	}
 
+	// generate lines with coverage state
 	lines := make([]Line, 0, len(sourceLines))
 	for i, code := range sourceLines {
 		lineNo, state, hits := i+1, "neutral", "0"

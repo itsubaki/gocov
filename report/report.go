@@ -77,14 +77,14 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 		blocks[b.File] = append(blocks[b.File], b)
 	}
 
-	files := make([]string, 0, len(blocks))
+	blockFiles := make([]string, 0, len(blocks))
 	for b := range blocks {
-		files = append(files, b)
+		blockFiles = append(blockFiles, b)
 	}
-	sort.Strings(files)
+	sort.Strings(blockFiles)
 
 	// add files
-	for i, f := range files {
+	for i, f := range blockFiles {
 		file, err := NewFile(opts.RootPath, rep.ModulePath, f, i, blocks[f])
 		if err != nil {
 			return nil, fmt.Errorf("create file report for %s: %w", f, err)
