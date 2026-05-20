@@ -14,7 +14,7 @@ type Line struct {
 	State  string
 }
 
-func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
+func NewLines(source []string, blocks []*profile.Block) []Line {
 	type LineCoverage struct {
 		covered bool
 		missed  bool
@@ -22,14 +22,14 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 	}
 
 	// map line number to coverage state
-	cov := make([]LineCoverage, len(sourceLines)+1)
+	cov := make([]LineCoverage, len(source)+1)
 	for _, v := range blocks {
 		start, end := max(1, v.StartLine), v.EndLine
 		if v.EndCol == 1 && end > start {
 			end--
 		}
 
-		end = min(end, len(sourceLines))
+		end = min(end, len(source))
 		if start > end {
 			continue
 		}
@@ -46,8 +46,8 @@ func NewLines(sourceLines []string, blocks []*profile.Block) []Line {
 	}
 
 	// generate lines with coverage state
-	lines := make([]Line, 0, len(sourceLines))
-	for i, code := range sourceLines {
+	lines := make([]Line, 0, len(source))
+	for i, code := range source {
 		lineNo, state, hits := i+1, "neutral", "0"
 
 		switch v := cov[lineNo]; {

@@ -4,7 +4,7 @@ import "sort"
 
 type Directory struct {
 	Name  string
-	Stats Stats
+	Stats *Stats
 }
 
 func NewDirectory(files []*File) []*Directory {

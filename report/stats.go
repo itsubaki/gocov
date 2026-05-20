@@ -20,7 +20,7 @@ func (s *Stats) Weight() int {
 	return s.TotalStatements
 }
 
-func (s *Stats) Merge(a Stats) {
+func (s *Stats) Merge(a *Stats) {
 	s.TotalStatements += a.TotalStatements
 	s.CoveredStatements += a.CoveredStatements
 	s.TotalLines += a.TotalLines

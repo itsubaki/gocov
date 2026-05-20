@@ -17,7 +17,7 @@ type File struct {
 	Directory   string
 	Found       bool
 	Blocks      int
-	Stats       Stats
+	Stats       *Stats
 	Lines       []Line
 }
 
@@ -39,7 +39,7 @@ func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) 
 		lines = NewLines(srcLines, blocks)
 	}
 
-	var stats Stats
+	stats := &Stats{}
 	for _, v := range blocks {
 		stats.TotalStatements += v.Statements
 		if v.Count > 0 {

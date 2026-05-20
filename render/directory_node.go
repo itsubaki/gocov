@@ -11,8 +11,8 @@ type DirectoryNode struct {
 	name        string
 	displayPath string
 	depth       int
-	Stats       report.Stats
-	SelfStats   report.Stats
+	Stats       *report.Stats
+	SelfStats   *report.Stats
 	children    []*DirectoryNode
 	childByName map[string]*DirectoryNode
 }
@@ -37,6 +37,8 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 	root := &DirectoryNode{
 		name:        "root",
 		displayPath: "root",
+		Stats:       &report.Stats{},
+		SelfStats:   &report.Stats{},
 		childByName: make(map[string]*DirectoryNode),
 	}
 
@@ -72,11 +74,11 @@ func (n *DirectoryNode) Name() string {
 	return n.displayPath + " files"
 }
 
-func (n *DirectoryNode) Merge(s report.Stats) {
+func (n *DirectoryNode) Merge(s *report.Stats) {
 	n.Stats.Merge(s)
 }
 
-func (n *DirectoryNode) MergeSelf(s report.Stats) {
+func (n *DirectoryNode) MergeSelf(s *report.Stats) {
 	n.SelfStats.Merge(s)
 }
 
@@ -102,6 +104,8 @@ func (n *DirectoryNode) NewChiled(name, displayPath string) *DirectoryNode {
 		name:        name,
 		displayPath: displayPath,
 		depth:       n.depth + 1,
+		Stats:       &report.Stats{},
+		SelfStats:   &report.Stats{},
 		childByName: make(map[string]*DirectoryNode),
 	}
 
