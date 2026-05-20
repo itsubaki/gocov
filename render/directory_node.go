@@ -50,7 +50,7 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 		node.MergeSelf(dir.Stats)
 	}
 
-	root.Refresh()
+	root.Update()
 	return root
 }
 
@@ -102,12 +102,12 @@ func (n *DirectoryNode) NewChiled(name, displayPath string) *DirectoryNode {
 	return child
 }
 
-func (n *DirectoryNode) Refresh() {
-	n.Stats.Refresh()
-	n.SelfStats.Refresh()
+func (n *DirectoryNode) Update() {
+	n.Stats.Update()
+	n.SelfStats.Update()
 
 	for _, v := range n.children {
-		v.Refresh()
+		v.Update()
 	}
 
 	nsort(n)

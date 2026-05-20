@@ -30,7 +30,7 @@ func (s *Stats) Merge(a Stats) {
 	s.TotalFiles += a.TotalFiles
 }
 
-func (s *Stats) Increment(lines []Line) {
+func (s *Stats) Add(lines []Line) {
 	for _, line := range lines {
 		switch line.State {
 		case "covered":
@@ -46,7 +46,7 @@ func (s *Stats) Increment(lines []Line) {
 	}
 }
 
-func (s *Stats) Refresh() {
+func (s *Stats) Update() {
 	div := func(a, b int) float64 {
 		if b == 0 {
 			return 0

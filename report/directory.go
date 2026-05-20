@@ -1,15 +1,18 @@
 package report
 
+import "sort"
+
 type Directory struct {
 	Name  string
 	Stats Stats
 }
 
-func NewDirectory(files []*File) map[string]*Directory {
+func NewDirectory(files []*File) []*Directory {
 	dirs := make(map[string]*Directory)
 	for _, f := range files {
 		if dir, ok := dirs[f.Directory]; ok {
 			dir.Stats.Merge(f.Stats)
+			dir.Stats.Update()
 			continue
 		}
 
@@ -19,5 +22,14 @@ func NewDirectory(files []*File) map[string]*Directory {
 		}
 	}
 
-	return dirs
+	out := make([]*Directory, 0, len(dirs))
+	for _, dir := range dirs {
+		out = append(out, dir)
+	}
+
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].Name < out[j].Name
+	})
+
+	return out
 }

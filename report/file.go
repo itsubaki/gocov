@@ -24,7 +24,6 @@ type File struct {
 func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profile.Block) (*File, error) {
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
-
 	dirName := filepath.ToSlash(filepath.Dir(displayPath))
 	if dirName == "." {
 		dirName = "root"
@@ -47,8 +46,8 @@ func NewFile(rootPath, modulePath, profileFile string, idx int, blocks []*profil
 			stats.CoveredStatements += v.Statements
 		}
 	}
-	stats.Increment(lines)
-	stats.Refresh()
+	stats.Add(lines)
+	stats.Update()
 
 	return &File{
 		ID:          fmt.Sprintf("file-%d", idx+1),

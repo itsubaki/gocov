@@ -20,58 +20,19 @@ type Options struct {
 }
 
 type Report struct {
+	GeneratedAt  time.Time
 	RootPath     string
-	ModulePath   string
 	ProfilePath  string
 	OutputPath   string
 	Mode         string
-	GeneratedAt  time.Time
+	ModulePath   string
 	Stats        Stats
-	MissingFiles []string
 	Files        []*File
 	Directories  []*Directory
-}
-
-func (r *Report) AddFile(f *File, profile string) {
-	if !f.Found {
-		r.MissingFiles = append(r.MissingFiles, profile)
-	}
-
-	r.Files = append(r.Files, f)
-	r.Stats.TotalFiles = len(r.Files)
-	r.Stats.Merge(f.Stats)
-	r.Stats.Refresh()
-}
-
-func (r *Report) AddDirs(dirs map[string]*Directory) {
-	for _, dir := range dirs {
-		dir.Stats.Refresh()
-		r.Directories = append(r.Directories, dir)
-	}
-
-	sort.Slice(r.Directories, func(i, j int) bool {
-		return r.Directories[i].Name < r.Directories[j].Name
-	})
-
-	sort.Slice(r.Files, func(i, j int) bool {
-		return r.Files[i].DisplayPath < r.Files[j].DisplayPath
-	})
-
-	for i := range r.Files {
-		r.Files[i].ID = fmt.Sprintf("file-%d", i+1)
-	}
+	MissingFiles []string
 }
 
 func New(prof *profile.Profile, opts Options) (*Report, error) {
-	rep := &Report{
-		GeneratedAt: opts.GeneratedAt,
-		RootPath:    opts.RootPath,
-		ProfilePath: opts.ProfilePath,
-		OutputPath:  opts.OutputPath,
-		Mode:        prof.Mode,
-		ModulePath:  modulePath(opts.RootPath),
-	}
-
 	blocks := make(map[string][]*profile.Block)
 	for _, b := range prof.Blocks {
 		blocks[b.File] = append(blocks[b.File], b)
@@ -83,19 +44,55 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 	}
 	sort.Strings(blockFiles)
 
-	// add files
+	modulePath := modulePath(opts.RootPath)
+
+	// files
+	var files []*File
+	var missing []string
 	for i, f := range blockFiles {
-		file, err := NewFile(opts.RootPath, rep.ModulePath, f, i, blocks[f])
+		file, err := NewFile(opts.RootPath, modulePath, f, i, blocks[f])
 		if err != nil {
 			return nil, fmt.Errorf("create file report for %s: %w", f, err)
 		}
 
-		rep.AddFile(file, f)
+		files = append(files, file)
+		if !file.Found {
+			missing = append(missing, f)
+		}
 	}
 
-	// add directories
-	rep.AddDirs(NewDirectory(rep.Files))
-	return rep, nil
+	// sort
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].DisplayPath < files[j].DisplayPath
+	})
+
+	// update file IDs
+	for i := range files {
+		files[i].ID = fmt.Sprintf("file-%d", i+1)
+	}
+
+	// stats
+	stats := Stats{
+		TotalFiles: len(files),
+	}
+
+	for _, f := range files {
+		stats.Merge(f.Stats)
+		stats.Update()
+	}
+
+	return &Report{
+		GeneratedAt:  opts.GeneratedAt,
+		RootPath:     opts.RootPath,
+		ProfilePath:  opts.ProfilePath,
+		OutputPath:   opts.OutputPath,
+		Mode:         prof.Mode,
+		ModulePath:   modulePath,
+		Stats:        stats,
+		Files:        files,
+		Directories:  NewDirectory(files),
+		MissingFiles: missing,
+	}, nil
 }
 
 func modulePath(root string) string {
