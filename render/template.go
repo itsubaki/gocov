@@ -725,7 +725,7 @@ const reportTemplate = `<!doctype html>
         <div class="directory-pie-wrap">
           <div class="directory-pie" aria-label="Directory coverage pie chart">
             <svg class="directory-pie-svg" viewBox="-1 -1 2 2" role="img" aria-label="Directory coverage by coverable lines">
-              {{range directorySlices .}}
+              {{range directories .}}
               <path class="directory-slice" d="{{.Path}}" fill="{{.Color}}" tabindex="0" data-directory-slice data-name="{{.Name}}" data-coverage="{{.Coverage}}" data-lines="{{.Lines}}" data-share="{{.Share}}" data-depth="{{.Depth}}" />
               {{end}}
             </svg>

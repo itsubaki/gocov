@@ -26,40 +26,47 @@ func Parse(path string) (*Profile, error) {
 	scanner := bufio.NewScanner(file)
 	scanner.Buffer(make([]byte, 1024), 1024*1024)
 
-	var prof Profile
-	var lineNo int
+	// read mode header
+	var mode string
+	if scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			return nil, fmt.Errorf("missing mode header %q", path)
+		}
+
+		mode, ok := strings.CutPrefix(line, "mode:")
+		if !ok {
+			return nil, fmt.Errorf("invalid mode header %q", line)
+		}
+
+		mode = strings.TrimSpace(mode)
+		if mode == "" {
+			return nil, fmt.Errorf("empty mode header %q", line)
+		}
+	}
+
+	// read blocks
+	var blocks []*Block
 	for scanner.Scan() {
-		lineNo++
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
 			continue
 		}
 
-		if prof.Mode == "" {
-			mode, ok := strings.CutPrefix(line, "mode:")
-			if !ok {
-				return nil, fmt.Errorf("line %d: expected mode header", lineNo)
-			}
-
-			prof.Mode = strings.TrimSpace(mode)
-			continue
-		}
-
 		block, err := parseLine(line)
 		if err != nil {
-			return nil, fmt.Errorf("line %d: %w", lineNo, err)
+			return nil, fmt.Errorf("parse line %q: %w", line, err)
 		}
 
-		prof.Blocks = append(prof.Blocks, block)
+		blocks = append(blocks, block)
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("read coverage profile: %w", err)
 	}
 
-	if prof.Mode == "" {
-		return nil, fmt.Errorf("missing mode header %q", path)
-	}
-
-	return &prof, nil
+	return &Profile{
+		Mode:   mode,
+		Blocks: blocks,
+	}, nil
 }

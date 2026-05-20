@@ -17,24 +17,70 @@ type Directory struct {
 	Share    string
 }
 
-func NewDirectory(
-	stats report.Stats,
-	name string,
-	depth int,
-	start float64,
-	end float64,
-	ringCount int,
-	total int,
-) *Directory {
-	return &Directory{
-		Name:     name,
-		Depth:    depth,
-		Lines:    stats.Weight(),
-		Path:     donutSegmentPath(start, end, depth, ringCount),
-		Color:    coverageColor(stats.Percent),
-		Coverage: percent(stats.Percent),
-		Share:    sharePercent(stats.Weight(), total),
+func NewDirectories(rep *report.Report) []*Directory {
+	root := NewDirectoryNode(rep.Directories)
+	total := root.Stats.Weight()
+	if total <= 0 {
+		return nil
 	}
+
+	return appendDir(
+		[]*Directory{},
+		root,
+		-90,
+		270,
+		root.MaxDepth()+1,
+		total,
+	)
+}
+
+func appendDir(dirs []*Directory, node *DirectoryNode, start, end float64, ringCount, total int) []*Directory {
+	weight := node.Stats.Weight()
+	slices := append(dirs, &Directory{
+		Name:     node.displayPath,
+		Depth:    node.depth,
+		Lines:    weight,
+		Path:     donutSegmentPath(start, end, node.depth, ringCount),
+		Color:    coverageColor(node.Stats.Percent),
+		Coverage: percent(node.Stats.Percent),
+		Share:    sharePercent(weight, total),
+	})
+
+	if len(node.children) == 0 || weight < 1 {
+		// no child or no coverable lines, skip children
+		return slices
+	}
+
+	// append self directory
+	next, span := start, end-start
+	if w := node.SelfStats.Weight(); w > 0 {
+		start, end := next, next+span*float64(w)/float64(weight)
+		next = end
+
+		// append self directory
+		slices = append(slices, &Directory{
+			Name:     node.Name(),
+			Depth:    node.depth + 1,
+			Lines:    node.SelfStats.Weight(),
+			Path:     donutSegmentPath(start, end, node.depth+1, ringCount),
+			Color:    coverageColor(node.SelfStats.Percent),
+			Coverage: percent(node.SelfStats.Percent),
+			Share:    sharePercent(node.SelfStats.Weight(), total),
+		})
+	}
+
+	// append child directories
+	for _, v := range node.children {
+		if w := v.Stats.Weight(); w > 0 {
+			start, end := next, next+span*float64(w)/float64(weight)
+			next = end
+
+			// append child directory
+			slices = appendDir(slices, v, start, end, ringCount, total)
+		}
+	}
+
+	return slices
 }
 
 func donutSegmentPath(start, end float64, depth, ringCount int) string {

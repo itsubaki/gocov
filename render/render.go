@@ -12,13 +12,13 @@ import (
 
 func HTML(w io.Writer, rep *report.Report) error {
 	tmpl, err := template.New("report").Funcs(template.FuncMap{
-		"directorySlices": NewDirectorySlice,
-		"sharePct":        sharePercent,
-		"pct":             percent,
-		"generatedAt":     generatedAt,
-		"stylePct":        stylePct,
-		"coverageColor":   covColor,
-		"lineClass":       lineClass,
+		"directories":   NewDirectories,
+		"sharePct":      sharePercent,
+		"pct":           percent,
+		"generatedAt":   generatedAt,
+		"stylePct":      stylePct,
+		"coverageColor": covColor,
+		"lineClass":     lineClass,
 	}).Parse(reportTemplate)
 	if err != nil {
 		return err
