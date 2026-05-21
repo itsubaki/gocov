@@ -12,13 +12,6 @@ import (
 	"github.com/itsubaki/gocov/profile"
 )
 
-type Options struct {
-	RootPath    string
-	ProfilePath string
-	OutputPath  string
-	GeneratedAt time.Time
-}
-
 type Report struct {
 	GeneratedAt  time.Time
 	RootPath     string
@@ -30,6 +23,13 @@ type Report struct {
 	Files        []*File
 	Directories  []*Directory
 	MissingFiles []string
+}
+
+type Options struct {
+	RootPath    string
+	ProfilePath string
+	OutputPath  string
+	GeneratedAt time.Time
 }
 
 func New(prof *profile.Profile, opts Options) (*Report, error) {
