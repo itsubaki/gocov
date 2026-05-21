@@ -1,13 +1,41 @@
 package render_test
 
 import (
+	"bytes"
+	"fmt"
 	"html/template"
 	"math"
 	"testing"
 	"time"
 
 	"github.com/itsubaki/gocov/render"
+	"github.com/itsubaki/gocov/report"
 )
+
+func ExampleHTML() {
+	rep := &report.Report{
+		GeneratedAt:  time.Now(),
+		RootPath:     "/path/to/root",
+		ProfilePath:  "/path/to/profile",
+		OutputPath:   "/path/to/output",
+		Mode:         "atomic",
+		ModulePath:   "github.com/itsubaki/gocov",
+		Stats:        &report.Stats{},
+		Files:        []*report.File{},
+		Directories:  []*report.Directory{},
+		MissingFiles: []string{},
+	}
+
+	var buf bytes.Buffer
+	if err := render.HTML(&buf, rep); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(buf.String()[:16])
+
+	// Output:
+	// <!doctype html>
+}
 
 func Test_generatedAt(t *testing.T) {
 	cases := []struct {

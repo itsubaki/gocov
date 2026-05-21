@@ -34,12 +34,12 @@ func Parse(path string) (*Profile, error) {
 			return nil, fmt.Errorf("missing mode header %q", path)
 		}
 
-		mode, ok := strings.CutPrefix(line, "mode:")
+		md, ok := strings.CutPrefix(line, "mode:")
 		if !ok {
 			return nil, fmt.Errorf("invalid mode header %q", line)
 		}
 
-		mode = strings.TrimSpace(mode)
+		mode = strings.TrimSpace(md)
 		if mode == "" {
 			return nil, fmt.Errorf("empty mode header %q", line)
 		}
