@@ -79,7 +79,7 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 		ModulePath:   modulePath,
 		Files:        files,
 		Directories:  NewDirectory(files),
-		Stats:        NewStats(files),
+		Stats:        NewFileStats(files),
 		MissingFiles: missing,
 	}, nil
 }

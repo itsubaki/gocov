@@ -23,12 +23,6 @@ type File struct {
 
 func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) (*File, error) {
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
-	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
-	dirName := filepath.ToSlash(filepath.Dir(displayPath))
-	if dirName == "." {
-		dirName = "root"
-	}
-
 	var lines []Line
 	if found {
 		srcLines, err := sourceLines(sourcePath)
@@ -39,6 +33,12 @@ func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) 
 		lines = NewLines(srcLines, blocks)
 	}
 
+	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
+	dirName := filepath.ToSlash(filepath.Dir(displayPath))
+	if dirName == "." {
+		dirName = "root"
+	}
+
 	return &File{
 		DisplayPath: displayPath,
 		ProfilePath: profileFile,
@@ -47,7 +47,7 @@ func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) 
 		Found:       found,
 		Blocks:      len(blocks),
 		Lines:       lines,
-		Stats:       NewStatsFrom(lines, blocks),
+		Stats:       NewLineStats(lines, blocks),
 	}, nil
 }
 

@@ -18,22 +18,6 @@ type DirectoryNode struct {
 }
 
 func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
-	pathParts := func(path string) []string {
-		slash := strings.ReplaceAll(path, "\\", "/")
-		parts := strings.Split(slash, "/")
-
-		out := make([]string, 0, len(parts))
-		for _, part := range parts {
-			if part == "" || part == "." {
-				continue
-			}
-
-			out = append(out, part)
-		}
-
-		return out
-	}
-
 	root := &DirectoryNode{
 		name:        "root",
 		displayPath: "root",
@@ -106,6 +90,22 @@ func (n *DirectoryNode) NewChiled(name, displayPath string) *DirectoryNode {
 	n.children = append(n.children, child)
 	n.childByName[name] = child
 	return child
+}
+
+func pathParts(path string) []string {
+	slash := strings.ReplaceAll(path, "\\", "/")
+	parts := strings.Split(slash, "/")
+
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part == "" || part == "." {
+			continue
+		}
+
+		out = append(out, part)
+	}
+
+	return out
 }
 
 func nsort(n *DirectoryNode) {

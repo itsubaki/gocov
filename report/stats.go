@@ -14,7 +14,7 @@ type Stats struct {
 	Status            string
 }
 
-func NewStats(files []*File) *Stats {
+func NewFileStats(files []*File) *Stats {
 	s := &Stats{}
 	for _, f := range files {
 		s = Merge(s, f.Stats)
@@ -24,7 +24,7 @@ func NewStats(files []*File) *Stats {
 	return s
 }
 
-func NewStatsFrom(lines []Line, blocks []*profile.Block) *Stats {
+func NewLineStats(lines []Line, blocks []*profile.Block) *Stats {
 	s := &Stats{}
 	for _, v := range blocks {
 		s.TotalStatements += v.Statements
