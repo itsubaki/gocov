@@ -14,4 +14,6 @@ var (
 	CoverageBandColor = coverageBandColor
 	HSLHex            = hslHex
 	HueToRGB          = hueToRGB
+	PathParts         = pathParts
+	ReportTemplate    = reportTemplate
 )
