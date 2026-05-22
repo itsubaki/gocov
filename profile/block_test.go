@@ -25,7 +25,38 @@ func Example_parseLine() {
 	// 2 5
 }
 
-func TestParsePoint(t *testing.T) {
+func Test_parseLine(t *testing.T) {
+	cases := []struct {
+		line   string
+		block  *profile.Block
+		hasErr bool
+	}{
+		{
+			line:   "github.com/itsubaki/gocov/profile/block.go:69.49,71.23 2 5",
+			hasErr: false,
+		},
+		{
+			line:   "hello wowrld",
+			hasErr: true,
+		},
+		{
+			line:   "nocolon 2 5",
+			hasErr: true,
+		},
+	}
+
+	for _, c := range cases {
+		if _, err := profile.ParseLine(c.line); err != nil {
+			if !c.hasErr {
+				t.Errorf("unexpected error: %v", err)
+			}
+
+			continue
+		}
+	}
+}
+
+func Test_parsePoint(t *testing.T) {
 	cases := []struct {
 		s         string
 		line, col int
