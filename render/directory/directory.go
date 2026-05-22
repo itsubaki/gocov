@@ -1,4 +1,4 @@
-package render
+package directory
 
 import (
 	"fmt"
@@ -17,9 +17,9 @@ type Directory struct {
 	Share    string
 }
 
-func NewDirectories(rep *report.Report) []*Directory {
-	root := NewDirectoryNode(rep.Directories)
-	total := root.Stats.Weight()
+func New(rep *report.Report) []*Directory {
+	root := NewNode(rep.Directories)
+	total := root.Weight()
 	if total <= 0 {
 		return nil
 	}
@@ -34,16 +34,17 @@ func NewDirectories(rep *report.Report) []*Directory {
 	)
 }
 
-func appendDir(dirs []*Directory, node *DirectoryNode, start, end float64, ringCount, total int) []*Directory {
-	weight := node.Stats.Weight()
+func appendDir(dirs []*Directory, node *Node, start, end float64, ringCount, total int) []*Directory {
+	// append current directory
+	weight := node.Weight()
 	slices := append(dirs, &Directory{
 		Name:     node.displayPath,
 		Depth:    node.depth,
 		Lines:    weight,
 		Path:     donutSegmentPath(start, end, node.depth, ringCount),
-		Color:    coverageColor(node.Stats.Percent),
-		Coverage: percent(node.Stats.Percent),
-		Share:    sharePercent(weight, total),
+		Color:    CoverageColor(node.Stats.Percent),
+		Coverage: Percent(node.Stats.Percent),
+		Share:    SharePercent(weight, total),
 	})
 
 	if len(node.children) == 0 || weight < 1 {
@@ -59,13 +60,13 @@ func appendDir(dirs []*Directory, node *DirectoryNode, start, end float64, ringC
 
 		// append self directory
 		slices = append(slices, &Directory{
-			Name:     node.Name(),
+			Name:     node.displayPath + " (self)",
 			Depth:    node.depth + 1,
-			Lines:    node.SelfStats.Weight(),
+			Lines:    w,
 			Path:     donutSegmentPath(start, end, node.depth+1, ringCount),
-			Color:    coverageColor(node.SelfStats.Percent),
-			Coverage: percent(node.SelfStats.Percent),
-			Share:    sharePercent(node.SelfStats.Weight(), total),
+			Color:    CoverageColor(node.SelfStats.Percent),
+			Coverage: Percent(node.SelfStats.Percent),
+			Share:    SharePercent(w, total),
 		})
 	}
 
@@ -155,8 +156,8 @@ func ringRadii(depth, count int) (float64, float64) {
 	return inner, min(outer, 1)
 }
 
-// sharePercent returns the percentage of part over total as a string with one decimal place.
-func sharePercent(part, total int) string {
+// SharePercent returns the percentage of part over total as a string with one decimal place.
+func SharePercent(part, total int) string {
 	if total <= 0 || part <= 0 {
 		return "0.0%"
 	}
@@ -164,8 +165,8 @@ func sharePercent(part, total int) string {
 	return fmt.Sprintf("%.1f%%", float64(part)*100/float64(total))
 }
 
-// percent formats a float64 as a percentage string with one decimal place.
-func percent(v float64) string {
+// Percent formats a float64 as a percentage string with one decimal place.
+func Percent(v float64) string {
 	if math.IsNaN(v) || math.IsInf(v, 0) {
 		return "0.0%"
 	}
@@ -173,8 +174,8 @@ func percent(v float64) string {
 	return fmt.Sprintf("%.1f%%", v)
 }
 
-// coverageColor returns the color for a given coverage percentage.
-func coverageColor(v float64) string {
+// CoverageColor returns the color for a given coverage percentage.
+func CoverageColor(v float64) string {
 	if math.IsNaN(v) || math.IsInf(v, 0) {
 		v = 0
 	}

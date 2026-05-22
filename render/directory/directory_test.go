@@ -1,13 +1,13 @@
-package render_test
+package directory_test
 
 import (
 	"math"
 	"testing"
 
-	"github.com/itsubaki/gocov/render"
+	"github.com/itsubaki/gocov/render/directory"
 )
 
-func Test_percent(t *testing.T) {
+func TestPercent(t *testing.T) {
 	cases := []struct {
 		v    float64
 		want string
@@ -31,13 +31,13 @@ func Test_percent(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if got := render.Percent(c.v); got != c.want {
-			t.Errorf("percent(%v) = %v, want %v", c.v, got, c.want)
+		if got := directory.Percent(c.v); got != c.want {
+			t.Errorf("Percent(%v) = %v, want %v", c.v, got, c.want)
 		}
 	}
 }
 
-func Test_sharePercent(t *testing.T) {
+func TestSharePercent(t *testing.T) {
 	cases := []struct {
 		part  int
 		total int
@@ -61,8 +61,8 @@ func Test_sharePercent(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if got := render.SharePercent(c.part, c.total); got != c.want {
-			t.Errorf("sharePercent(%v, %v) = %v, want %v", c.part, c.total, got, c.want)
+		if got := directory.SharePercent(c.part, c.total); got != c.want {
+			t.Errorf("SharePercent(%v, %v) = %v, want %v", c.part, c.total, got, c.want)
 		}
 	}
 }
@@ -91,7 +91,7 @@ func Test_ringRadii(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		inner, outer := render.RingRadii(c.depth, c.count)
+		inner, outer := directory.RingRadii(c.depth, c.count)
 		if inner != c.want[0] {
 			t.Errorf("ringRadii(%v, %v) inner = %v, want %v", c.depth, c.count, inner, c.want[0])
 		}
