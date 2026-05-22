@@ -28,6 +28,7 @@ jobs:
       - name: Build
         run: |
           make gocov
+          cp output/coverage.html output/index.html
 
       - name: Upload static files as artifact
         uses: actions/upload-pages-artifact@v3
