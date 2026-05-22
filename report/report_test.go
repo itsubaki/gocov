@@ -40,7 +40,7 @@ go 1.22
 	for _, c := range cases {
 		got := report.ModulePath(strings.NewReader(c.gomod))
 		if got != c.want {
-			t.Fatalf("got %q, want %q", got, c.want)
+			t.Errorf("got %q, want %q", got, c.want)
 		}
 	}
 }

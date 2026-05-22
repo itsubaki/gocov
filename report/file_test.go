@@ -139,11 +139,11 @@ func Test_sourcePath(t *testing.T) {
 	for i, c := range cases {
 		got, ok := report.SourcePath(root, c.modulePath, c.profileFile)
 		if ok != c.ok {
-			t.Fatalf("case %d: ok = %v want %v", i, ok, c.ok)
+			t.Errorf("case %d: ok = %v want %v", i, ok, c.ok)
 		}
 
 		if c.ok && got == "" {
-			t.Fatalf("case %d: expected path but got empty", i)
+			t.Errorf("case %d: expected path but got empty", i)
 		}
 	}
 }

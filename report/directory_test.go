@@ -31,12 +31,12 @@ func TestNewDirectory(t *testing.T) {
 	for i, c := range cases {
 		got := report.NewDirectory(c.files)
 		if len(got) != len(c.want) {
-			t.Fatalf("case %d: len = %d want %d", i, len(got), len(c.want))
+			t.Errorf("case %d: len = %d want %d", i, len(got), len(c.want))
 		}
 
 		for j := range got {
 			if got[j].Name != c.want[j] {
-				t.Fatalf("case %d: index %d got %s want %s", i, j, got[j].Name, c.want[j])
+				t.Errorf("case %d: index %d got %s want %s", i, j, got[j].Name, c.want[j])
 			}
 		}
 	}
