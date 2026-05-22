@@ -52,25 +52,8 @@ func appendDir(dirs []*Directory, node *Node, start, end float64, ringCount, tot
 		return slices
 	}
 
-	// append self directory
-	next, span := start, end-start
-	if w := node.SelfStats.Weight(); w > 0 {
-		start, end := next, next+span*float64(w)/float64(weight)
-		next = end
-
-		// append self directory
-		slices = append(slices, &Directory{
-			Name:     node.displayPath + " (self)",
-			Depth:    node.depth + 1,
-			Lines:    w,
-			Path:     donutSegmentPath(start, end, node.depth+1, ringCount),
-			Color:    CoverageColor(node.SelfStats.Percent),
-			Coverage: Percent(node.SelfStats.Percent),
-			Share:    SharePercent(w, total),
-		})
-	}
-
 	// append child directories
+	next, span := start, end-start
 	for _, v := range node.children {
 		if w := v.Stats.Weight(); w > 0 {
 			start, end := next, next+span*float64(w)/float64(weight)
