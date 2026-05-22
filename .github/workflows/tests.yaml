@@ -36,6 +36,15 @@ jobs:
           path: output/
 
   deploy:
+    if: >
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.user.login == github.repository_owner &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      ) || (
+        github.event_name == 'push' &&
+        github.ref == 'refs/heads/main'
+      )
     needs: build
     runs-on: ubuntu-latest
     permissions:
