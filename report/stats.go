@@ -14,8 +14,8 @@ type Stats struct {
 	Status            string
 }
 
-func NewFileStats(files []*File) *Stats {
-	s := &Stats{}
+func NewFileStats(files []*File) Stats {
+	var s Stats
 	for _, f := range files {
 		s = Merge(s, f.Stats)
 	}
@@ -24,8 +24,8 @@ func NewFileStats(files []*File) *Stats {
 	return s
 }
 
-func NewLineStats(lines []Line, blocks []*profile.Block) *Stats {
-	s := &Stats{}
+func NewLineStats(lines []Line, blocks []*profile.Block) Stats {
+	var s Stats
 	for _, v := range blocks {
 		s.TotalStatements += v.Statements
 		if v.Count > 0 {
@@ -47,11 +47,11 @@ func NewLineStats(lines []Line, blocks []*profile.Block) *Stats {
 		}
 	}
 
-	update(s)
+	s.update()
 	return s
 }
 
-func Merge(a, b *Stats) *Stats {
+func Merge(a, b Stats) Stats {
 	a.TotalStatements += b.TotalStatements
 	a.CoveredStatements += b.CoveredStatements
 	a.TotalLines += b.TotalLines
@@ -60,7 +60,7 @@ func Merge(a, b *Stats) *Stats {
 	a.MissedLines += b.MissedLines
 	a.TotalFiles += b.TotalFiles
 
-	update(a)
+	a.update()
 	return a
 }
 
@@ -72,7 +72,7 @@ func (s *Stats) Weight() int {
 	return s.TotalStatements
 }
 
-func update(s *Stats) {
+func (s *Stats) update() {
 	s.Percent = 100
 	if s.TotalStatements > 0 {
 		s.Percent = div(s.CoveredStatements, s.TotalStatements) * 100

@@ -13,16 +13,16 @@ func TestNewDirectory(t *testing.T) {
 	}{
 		{
 			files: []*report.File{
-				{Directory: "b", Stats: &report.Stats{CoveredLines: 1}},
-				{Directory: "a", Stats: &report.Stats{CoveredLines: 2}},
-				{Directory: "b", Stats: &report.Stats{CoveredLines: 3}},
+				{Directory: "b", Stats: report.Stats{CoveredLines: 1}},
+				{Directory: "a", Stats: report.Stats{CoveredLines: 2}},
+				{Directory: "b", Stats: report.Stats{CoveredLines: 3}},
 			},
 			want: []string{"a", "b"},
 		},
 		{
 			files: []*report.File{
-				{Directory: "x", Stats: &report.Stats{CoveredLines: 1}},
-				{Directory: "y", Stats: &report.Stats{CoveredLines: 2}},
+				{Directory: "x", Stats: report.Stats{CoveredLines: 1}},
+				{Directory: "y", Stats: report.Stats{CoveredLines: 2}},
 			},
 			want: []string{"x", "y"},
 		},

@@ -17,7 +17,7 @@ type File struct {
 	Directory   string
 	Found       bool
 	Blocks      int
-	Stats       *Stats
+	Stats       Stats
 	Lines       []Line
 }
 

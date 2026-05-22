@@ -8,8 +8,8 @@ import (
 )
 
 type Node struct {
-	Stats       *report.Stats
-	SelfStats   *report.Stats
+	Stats       report.Stats
+	SelfStats   report.Stats
 	name        string
 	displayPath string
 	depth       int
@@ -19,8 +19,6 @@ type Node struct {
 
 func NewNode(dirs []*report.Directory) *Node {
 	root := &Node{
-		Stats:       &report.Stats{},
-		SelfStats:   &report.Stats{},
 		name:        "root",
 		displayPath: "root",
 		childByName: make(map[string]*Node),
@@ -51,7 +49,6 @@ func NewNode(dirs []*report.Directory) *Node {
 			// create child
 			next = next.Add(&Node{
 				Stats:       dir.Stats,
-				SelfStats:   &report.Stats{},
 				name:        name,
 				displayPath: strings.Join(parts[:i+1], "/"),
 				depth:       next.depth + 1,

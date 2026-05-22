@@ -22,7 +22,7 @@ func TestNewFileStats(t *testing.T) {
 						{State: "partial"},
 						{State: "neutral"},
 					},
-					Stats: &report.Stats{
+					Stats: report.Stats{
 						TotalStatements:   4,
 						CoveredStatements: 1,
 						TotalLines:        4,
@@ -129,14 +129,14 @@ func TestNewLineStats(t *testing.T) {
 }
 
 func ExampleMerge() {
-	a := &report.Stats{
+	a := report.Stats{
 		TotalStatements:   10,
 		CoveredStatements: 5,
 		TotalLines:        20,
 		CoveredLines:      10,
 	}
 
-	b := &report.Stats{
+	b := report.Stats{
 		TotalStatements:   20,
 		CoveredStatements: 15,
 		TotalLines:        30,
@@ -163,18 +163,18 @@ func ExampleMerge() {
 
 func TestStats_Weight(t *testing.T) {
 	cases := []struct {
-		s    *report.Stats
+		s    report.Stats
 		want int
 	}{
 		{
-			s: &report.Stats{
+			s: report.Stats{
 				TotalLines:      10,
 				TotalStatements: 5,
 			},
 			want: 10,
 		},
 		{
-			s: &report.Stats{
+			s: report.Stats{
 				TotalLines:      0,
 				TotalStatements: 0,
 			},

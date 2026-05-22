@@ -20,7 +20,7 @@ func ExampleHTML() {
 		OutputPath:   "/path/to/output",
 		Mode:         "atomic",
 		ModulePath:   "github.com/itsubaki/gocov",
-		Stats:        &report.Stats{},
+		Stats:        report.Stats{},
 		Files:        []*report.File{},
 		Directories:  []*report.Directory{},
 		MissingFiles: []string{},

@@ -20,7 +20,7 @@ type Report struct {
 	OutputPath   string
 	Mode         string
 	ModulePath   string
-	Stats        *Stats
+	Stats        Stats
 	Files        []*File
 	Directories  []*Directory
 	MissingFiles []string
