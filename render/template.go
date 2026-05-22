@@ -340,7 +340,7 @@ const reportTemplate = `<!doctype html>
       position: absolute;
       z-index: 4;
       display: none;
-      width: 240px;
+      width: max-content;
       padding: 8px 10px;
       border-radius: 8px;
       background: var(--ink);
@@ -663,7 +663,7 @@ const reportTemplate = `<!doctype html>
       <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
       <div class="side-meta">
         <div>{{.Stats.TotalFiles}} files</div>
-        <div>{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} statements covered</div>
+        <div>{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} ({{pct .Stats.Percent}}) statements covered</div>
       </div>
       <nav class="file-list" id="fileList">
         {{range .Files}}
@@ -737,7 +737,7 @@ const reportTemplate = `<!doctype html>
             </div>
             <div class="directory-tooltip" data-directory-tooltip role="status"></div>
           </div>
-          <div class="directory-pie-meta">{{.Stats.TotalLines}} coverable lines across {{len .Directories}} directories</div>
+          <div class="directory-pie-meta">{{.Stats.TotalStatements}} coverable statements across {{len .Directories}} directories</div>
         </div>
         <section class="directory-grid" data-directory-grid>
           {{range .Directories}}
@@ -748,7 +748,7 @@ const reportTemplate = `<!doctype html>
             </div>
             <div class="bar" aria-hidden="true"><span class="bar-fill" style="--coverage: {{stylePct .Stats.Percent}}; --coverage-color: {{coverageColor .Stats.Percent}}"></span></div>
             <div class="directory-row-meta" style="margin-top:8px; color:var(--muted); font-size:12px;">
-              {{.Stats.TotalLines}} lines, {{sharePct .Stats.TotalLines $.Stats.TotalLines}} of total
+              {{.Stats.TotalStatements}} statements, {{.Stats.CoveredStatements}} covered.
             </div>
           </div>
           {{end}}
@@ -901,11 +901,12 @@ const reportTemplate = `<!doctype html>
       pieLabel.textContent = slice.dataset.name;
 
       if (!directoryTooltip) return;
-      directoryTooltip.textContent = slice.dataset.name + ': ' + slice.dataset.coverage + '; ' + slice.dataset.lines + ' lines, ' + slice.dataset.share + ' of total';
+      directoryTooltip.textContent = slice.dataset.name;
       directoryTooltip.classList.add('visible');
 
       const pie = slice.closest('.directory-pie');
       if (!pie) return;
+
       const rect = pie.getBoundingClientRect();
       if (event) {
         directoryTooltip.style.left = (event.clientX - rect.left) + 'px';
