@@ -67,6 +67,16 @@ func NewNode(dirs []*report.Directory) *Node {
 	return root
 }
 
+// Weight returns the total number of coverable lines in the directory and its subdirectories.
+func (n *Node) Weight() int {
+	var sum int
+	for _, c := range n.children {
+		sum += c.Stats.Weight()
+	}
+
+	return sum + n.SelfStats.Weight()
+}
+
 func (n *Node) MaxDepth() int {
 	depth := n.depth
 	if len(n.children) > 0 && n.SelfStats.Weight() > 0 {
