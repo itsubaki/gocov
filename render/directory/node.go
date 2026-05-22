@@ -26,40 +26,31 @@ func NewNode(dirs []*report.Directory) *Node {
 
 	for _, dir := range dirs {
 		if dir.Stats.Weight() == 0 {
-			// no coverable lines, skip directory
 			continue
 		}
 
-		// root
-		root.Stats = report.Merge(root.Stats, dir.Stats)
 		if dir.Name == "root" {
 			root.SelfStats = report.Merge(root.SelfStats, dir.Stats)
 			continue
 		}
 
-		// child
 		next, parts := root, pathParts(dir.Name)
 		for i, name := range parts {
 			if child := next.childByName[name]; child != nil {
-				child.Stats = dir.Stats
 				next = child
 				continue
 			}
-
-			// create child
 			next = next.Add(&Node{
-				Stats:       dir.Stats,
 				name:        name,
 				displayPath: strings.Join(parts[:i+1], "/"),
 				depth:       next.depth + 1,
 				childByName: make(map[string]*Node),
 			})
 		}
-
-		// self directory
 		next.SelfStats = report.Merge(next.SelfStats, dir.Stats)
 	}
 
+	accumulate(root)
 	nsort(root)
 	return root
 }
@@ -107,6 +98,16 @@ func pathParts(path string) []string {
 	}
 
 	return out
+}
+
+func accumulate(n *Node) report.Stats {
+	sum := n.SelfStats
+	for _, c := range n.children {
+		sum = report.Merge(sum, accumulate(c))
+	}
+
+	n.Stats = sum
+	return sum
 }
 
 func nsort(n *Node) {
