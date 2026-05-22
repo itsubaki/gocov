@@ -1,13 +1,13 @@
-package render_test
+package directory_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/itsubaki/gocov/render"
+	"github.com/itsubaki/gocov/render/directory"
 )
 
-func Test_parthParts(t *testing.T) {
+func Test_pathParts(t *testing.T) {
 	cases := []struct {
 		path string
 		want []string
@@ -23,7 +23,7 @@ func Test_parthParts(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if got := render.PathParts(c.path); !reflect.DeepEqual(got, c.want) {
+		if got := directory.PathParts(c.path); !reflect.DeepEqual(got, c.want) {
 			t.Errorf("pathParts(%v) = %v, want %v", c.path, got, c.want)
 		}
 	}

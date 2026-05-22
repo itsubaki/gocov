@@ -7,18 +7,19 @@ import (
 	"math"
 	"time"
 
+	"github.com/itsubaki/gocov/render/directory"
 	"github.com/itsubaki/gocov/report"
 )
 
 // HTML renders the coverage report as HTML.
 func HTML(w io.Writer, rep *report.Report) error {
 	tmpl, err := template.New("report").Funcs(template.FuncMap{
-		"directories":   NewDirectories,
-		"sharePct":      sharePercent,
-		"pct":           percent,
+		"directories":   directory.New,
+		"sharePct":      directory.SharePercent,
+		"pct":           directory.Percent,
+		"coverageColor": directory.CoverageColor,
 		"generatedAt":   generatedAt,
 		"stylePct":      stylePct,
-		"coverageColor": covColor,
 		"lineClass":     lineClass,
 	}).Parse(reportTemplate)
 	if err != nil {
@@ -45,7 +46,7 @@ func stylePct(v float64) string {
 }
 
 func covColor(v float64) template.CSS {
-	return template.CSS(coverageColor(v))
+	return template.CSS(directory.CoverageColor(v))
 }
 
 func lineClass(state string) string {

@@ -1,4 +1,4 @@
-package render
+package directory
 
 import (
 	"sort"
@@ -7,23 +7,23 @@ import (
 	"github.com/itsubaki/gocov/report"
 )
 
-type DirectoryNode struct {
+type Node struct {
 	Stats       *report.Stats
 	SelfStats   *report.Stats
 	name        string
 	displayPath string
 	depth       int
-	children    []*DirectoryNode
-	childByName map[string]*DirectoryNode
+	children    []*Node
+	childByName map[string]*Node
 }
 
-func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
-	root := &DirectoryNode{
+func NewNode(dirs []*report.Directory) *Node {
+	root := &Node{
 		Stats:       &report.Stats{},
 		SelfStats:   &report.Stats{},
 		name:        "root",
 		displayPath: "root",
-		childByName: make(map[string]*DirectoryNode),
+		childByName: make(map[string]*Node),
 	}
 
 	for _, dir := range dirs {
@@ -43,18 +43,19 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 		next, parts := root, pathParts(dir.Name)
 		for i, name := range parts {
 			if child := next.childByName[name]; child != nil {
+				child.Stats = dir.Stats
 				next = child
 				continue
 			}
 
 			// create child
-			next = next.Add(&DirectoryNode{
+			next = next.Add(&Node{
 				Stats:       dir.Stats,
 				SelfStats:   &report.Stats{},
 				name:        name,
 				displayPath: strings.Join(parts[:i+1], "/"),
 				depth:       next.depth + 1,
-				childByName: make(map[string]*DirectoryNode),
+				childByName: make(map[string]*Node),
 			})
 		}
 
@@ -66,15 +67,7 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 	return root
 }
 
-func (n *DirectoryNode) Name() string {
-	if n.displayPath == "root" {
-		return "root files"
-	}
-
-	return n.displayPath + " files"
-}
-
-func (n *DirectoryNode) MaxDepth() int {
+func (n *Node) MaxDepth() int {
 	depth := n.depth
 	if len(n.children) > 0 && n.SelfStats.Weight() > 0 {
 		depth = max(depth, n.depth+1)
@@ -87,7 +80,7 @@ func (n *DirectoryNode) MaxDepth() int {
 	return depth
 }
 
-func (n *DirectoryNode) Add(child *DirectoryNode) *DirectoryNode {
+func (n *Node) Add(child *Node) *Node {
 	n.childByName[child.name] = child
 	n.children = append(n.children, child)
 	return child
@@ -109,7 +102,7 @@ func pathParts(path string) []string {
 	return out
 }
 
-func nsort(n *DirectoryNode) {
+func nsort(n *Node) {
 	sort.Slice(n.children, func(i, j int) bool {
 		return n.children[i].displayPath < n.children[j].displayPath
 	})
