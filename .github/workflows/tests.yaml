@@ -31,7 +31,7 @@ jobs:
           cp output/coverage.html output/index.html
 
       - name: Upload static files as artifact
-        uses: actions/upload-pages-artifact@v7
+        uses: actions/upload-pages-artifact@v5
         with:
           path: output/
 
