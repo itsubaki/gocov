@@ -3,6 +3,7 @@ package report
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -44,8 +45,19 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 	}
 	sort.Strings(blockFiles)
 
+	// module path
+	file, err := os.Open(filepath.Join(opts.RootPath, "go.mod"))
+	if err != nil {
+		return nil, fmt.Errorf("open go.mod: %w", err)
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
+		}
+	}()
+	modulePath := modulePath(file)
+
 	// files
-	modulePath := modulePath(opts.RootPath)
 	var files []*File
 	var missing []string
 	for _, f := range blockFiles {
@@ -84,18 +96,8 @@ func New(prof *profile.Profile, opts Options) (*Report, error) {
 	}, nil
 }
 
-func modulePath(root string) string {
-	file, err := os.Open(filepath.Join(root, "go.mod"))
-	if err != nil {
-		return ""
-	}
-	defer func() {
-		if err := file.Close(); err != nil {
-			fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
-		}
-	}()
-
-	scanner := bufio.NewScanner(file)
+func modulePath(r io.Reader) string {
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if module, ok := strings.CutPrefix(line, "module "); ok {

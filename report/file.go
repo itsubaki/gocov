@@ -25,12 +25,12 @@ func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) 
 	var lines []Line
 	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	if found {
-		srcLines, err := sourceLines(sourcePath)
+		data, err := os.ReadFile(sourcePath)
 		if err != nil {
-			return nil, fmt.Errorf("read source %s: %w", sourcePath, err)
+			return nil, fmt.Errorf("read source file %s: %w", sourcePath, err)
 		}
 
-		lines = NewLines(srcLines, blocks)
+		lines = NewLines(sourceLines(string(data)), blocks)
 	}
 
 	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
@@ -109,14 +109,9 @@ func displayPath(root, modulePath, profileFile, sourcePath string, found bool) s
 	return slash
 }
 
-func sourceLines(path string) ([]string, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
+func sourceLines(data string) []string {
 	// normalize line endings to \n
-	text := strings.ReplaceAll(string(data), "\r\n", "\n")
+	text := strings.ReplaceAll(data, "\r\n", "\n")
 	text = strings.ReplaceAll(text, "\r", "\n")
 	lines := strings.Split(text, "\n")
 
@@ -125,5 +120,5 @@ func sourceLines(path string) ([]string, error) {
 		lines = lines[:len(lines)-1]
 	}
 
-	return lines, nil
+	return lines
 }
