@@ -8,26 +8,27 @@ import (
 )
 
 type DirectoryNode struct {
+	Stats       *report.Stats
+	SelfStats   *report.Stats
 	name        string
 	displayPath string
 	depth       int
-	Stats       *report.Stats
-	SelfStats   *report.Stats
 	children    []*DirectoryNode
 	childByName map[string]*DirectoryNode
 }
 
 func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 	root := &DirectoryNode{
-		name:        "root",
-		displayPath: "root",
 		Stats:       &report.Stats{},
 		SelfStats:   &report.Stats{},
+		name:        "root",
+		displayPath: "root",
 		childByName: make(map[string]*DirectoryNode),
 	}
 
 	for _, dir := range dirs {
 		if dir.Stats.Weight() == 0 {
+			// no coverable lines, skip directory
 			continue
 		}
 
@@ -39,13 +40,26 @@ func NewDirectoryNode(dirs []*report.Directory) *DirectoryNode {
 		}
 
 		// child
-		node, parts := root, pathParts(dir.Name)
-		for i, p := range parts {
-			node = node.NewChiled(p, strings.Join(parts[:i+1], "/"))
-			node.Stats = report.Merge(node.Stats, dir.Stats)
+		next, parts := root, pathParts(dir.Name)
+		for i, name := range parts {
+			if child := next.childByName[name]; child != nil {
+				next = child
+				continue
+			}
+
+			// create child
+			next = next.Add(&DirectoryNode{
+				Stats:       dir.Stats,
+				SelfStats:   &report.Stats{},
+				name:        name,
+				displayPath: strings.Join(parts[:i+1], "/"),
+				depth:       next.depth + 1,
+				childByName: make(map[string]*DirectoryNode),
+			})
 		}
 
-		node.SelfStats = report.Merge(node.SelfStats, dir.Stats)
+		// self directory
+		next.SelfStats = report.Merge(next.SelfStats, dir.Stats)
 	}
 
 	nsort(root)
@@ -73,22 +87,9 @@ func (n *DirectoryNode) MaxDepth() int {
 	return depth
 }
 
-func (n *DirectoryNode) NewChiled(name, displayPath string) *DirectoryNode {
-	if child := n.childByName[name]; child != nil {
-		return child
-	}
-
-	child := &DirectoryNode{
-		name:        name,
-		displayPath: displayPath,
-		depth:       n.depth + 1,
-		Stats:       &report.Stats{},
-		SelfStats:   &report.Stats{},
-		childByName: make(map[string]*DirectoryNode),
-	}
-
+func (n *DirectoryNode) Add(child *DirectoryNode) *DirectoryNode {
+	n.childByName[child.name] = child
 	n.children = append(n.children, child)
-	n.childByName[name] = child
 	return child
 }
 

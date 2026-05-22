@@ -83,6 +83,7 @@ func appendDir(dirs []*Directory, node *DirectoryNode, start, end float64, ringC
 	return slices
 }
 
+// donutSegmentPath returns the SVG path for a donut segment defined by start and end angles, depth, and total ring count.
 func donutSegmentPath(start, end float64, depth, ringCount int) string {
 	if end <= start {
 		return ""
@@ -141,6 +142,7 @@ func donutSegmentPath(start, end float64, depth, ringCount int) string {
 	)
 }
 
+// ringRadii returns the inner and outer radii for a given depth and total ring count.
 func ringRadii(depth, count int) (float64, float64) {
 	const centerRadius = 0.34
 	if count <= 0 {
@@ -153,6 +155,7 @@ func ringRadii(depth, count int) (float64, float64) {
 	return inner, min(outer, 1)
 }
 
+// sharePercent returns the percentage of part over total as a string with one decimal place.
 func sharePercent(part, total int) string {
 	if total <= 0 || part <= 0 {
 		return "0.0%"
@@ -161,6 +164,7 @@ func sharePercent(part, total int) string {
 	return fmt.Sprintf("%.1f%%", float64(part)*100/float64(total))
 }
 
+// percent formats a float64 as a percentage string with one decimal place.
 func percent(v float64) string {
 	if math.IsNaN(v) || math.IsInf(v, 0) {
 		return "0.0%"
@@ -169,6 +173,7 @@ func percent(v float64) string {
 	return fmt.Sprintf("%.1f%%", v)
 }
 
+// coverageColor returns the color for a given coverage percentage.
 func coverageColor(v float64) string {
 	if math.IsNaN(v) || math.IsInf(v, 0) {
 		v = 0
@@ -184,6 +189,7 @@ func coverageColor(v float64) string {
 	}
 }
 
+// coverageBandColor returns the color for a given coverage percentage within a specified band.
 func coverageBandColor(v, start, end, startHue, endHue, saturation, lightness float64) string {
 	progress := 0.0
 	if end > start {
@@ -194,6 +200,7 @@ func coverageBandColor(v, start, end, startHue, endHue, saturation, lightness fl
 	return hslHex(hue, saturation, lightness)
 }
 
+// hslHex converts HSL color to hex string.
 func hslHex(hue, saturation, lightness float64) string {
 	h := math.Mod(hue, 360) / 360
 	s := min(max(saturation/100, 0), 1)
@@ -215,6 +222,7 @@ func hslHex(hue, saturation, lightness float64) string {
 	return fmt.Sprintf("#%02x%02x%02x", int(math.Round(r*255)), int(math.Round(g*255)), int(math.Round(b*255)))
 }
 
+// hueToRGB converts hue to RGB component.
 func hueToRGB(p, q, t float64) float64 {
 	if t < 0 {
 		t++

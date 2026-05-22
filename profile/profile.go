@@ -8,8 +8,8 @@ import (
 )
 
 type Profile struct {
-	Mode   string
-	Blocks []*Block
+	Mode   string   // coverage mode (e.g., "set", "count", "atomic")
+	Blocks []*Block // coverage blocks
 }
 
 func Parse(path string) (*Profile, error) {

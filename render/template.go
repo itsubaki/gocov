@@ -686,7 +686,7 @@ const reportTemplate = `<!doctype html>
             {{if .ModulePath}}Module: {{.ModulePath}} {{end}}
           </p>
           <p class="subtitle">
-            Generated {{generatedAt .GeneratedAt}} from {{.ProfilePath}}
+            Generated {{generatedAt .GeneratedAt}}
           </p>
         </div>
       </header>

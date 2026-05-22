@@ -8,10 +8,10 @@ import (
 )
 
 type Line struct {
-	Number int
-	Code   string
-	Hits   string
-	State  string
+	Number int    // line number, starting from 1
+	Code   string // source code of the line
+	Hits   string // number of hits, formatted as string (e.g., "10", "1.5k", "2.3m")
+	State  string // coverage state: "covered", "missed", "partial", or "neutral"
 }
 
 func NewLines(source []string, blocks []*profile.Block) []Line {

@@ -22,8 +22,8 @@ type File struct {
 }
 
 func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) (*File, error) {
-	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	var lines []Line
+	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
 	if found {
 		srcLines, err := sourceLines(sourcePath)
 		if err != nil {

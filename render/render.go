@@ -10,6 +10,7 @@ import (
 	"github.com/itsubaki/gocov/report"
 )
 
+// HTML renders the coverage report as HTML.
 func HTML(w io.Writer, rep *report.Report) error {
 	tmpl, err := template.New("report").Funcs(template.FuncMap{
 		"directories":   NewDirectories,
