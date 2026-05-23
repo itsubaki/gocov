@@ -780,7 +780,7 @@ const reportTemplate = `<!doctype html>
       <div data-file-cards>
       {{range .Files}}
       <section class="file-card" id="{{.ID}}" data-file-card data-name="{{.DisplayPath}}" data-coverage="{{.Stats.Percent}}">
-        <details open>
+        <details>
           <summary>
             <div class="file-header">
               <div>
@@ -934,6 +934,9 @@ const reportTemplate = `<!doctype html>
       slice.addEventListener('focus', () => showDirectory(slice));
       slice.addEventListener('blur', resetDirectory);
     }
+
+    // Collapse all details by default on page load
+    for (const item of document.querySelectorAll('details')) item.open = false;
 
     document.getElementById('expandAll').addEventListener('click', () => {
       for (const item of document.querySelectorAll('details')) item.open = true;

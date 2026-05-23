@@ -48,8 +48,8 @@ func NewLineStats(lines []Line, blocks []*profile.Block) Stats {
 			s.TotalLines++
 		}
 	}
-	s.update()
 
+	s.update()
 	return s
 }
 
@@ -61,8 +61,8 @@ func Merge(a, b Stats) Stats {
 	a.PartialLines += b.PartialLines
 	a.MissedLines += b.MissedLines
 	a.TotalFiles += b.TotalFiles
-	a.update()
 
+	a.update()
 	return a
 }
 
