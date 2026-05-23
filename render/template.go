@@ -663,7 +663,7 @@ const reportTemplate = `<!doctype html>
       <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
       <div class="side-meta">
         <div>{{.Stats.TotalFiles}} files</div>
-        <div>{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} ({{pct .Stats.Percent}}) statements covered</div>
+        <div>{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} ({{pct .Stats.Percent}}) statements covered.</div>
       </div>
       <nav class="file-list" id="fileList">
         {{range .Files}}
@@ -748,7 +748,7 @@ const reportTemplate = `<!doctype html>
             </div>
             <div class="bar" aria-hidden="true"><span class="bar-fill" style="--coverage: {{stylePct .Stats.Percent}}; --coverage-color: {{coverageColor .Stats.Percent}}"></span></div>
             <div class="directory-row-meta" style="margin-top:8px; color:var(--muted); font-size:12px;">
-              {{.Stats.TotalStatements}} statements, {{.Stats.CoveredStatements}} covered.
+             {{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} statements covered.
             </div>
           </div>
           {{end}}
