@@ -1,6 +1,8 @@
 package report
 
-import "github.com/itsubaki/gocov/profile"
+import (
+	"github.com/itsubaki/gocov/profile"
+)
 
 type Stats struct {
 	TotalStatements   int
@@ -46,8 +48,8 @@ func NewLineStats(lines []Line, blocks []*profile.Block) Stats {
 			s.TotalLines++
 		}
 	}
-
 	s.update()
+
 	return s
 }
 
@@ -59,23 +61,17 @@ func Merge(a, b Stats) Stats {
 	a.PartialLines += b.PartialLines
 	a.MissedLines += b.MissedLines
 	a.TotalFiles += b.TotalFiles
-
 	a.update()
+
 	return a
-}
-
-func (s *Stats) Weight() int {
-	if s.TotalLines > 0 {
-		return s.TotalLines
-	}
-
-	return s.TotalStatements
 }
 
 func (s *Stats) update() {
 	s.Percent = 100
 	if s.TotalStatements > 0 {
-		s.Percent = div(s.CoveredStatements, s.TotalStatements) * 100
+		a := float64(s.CoveredStatements)
+		b := float64(s.TotalStatements)
+		s.Percent = a / b * 100
 	}
 
 	switch v := s.Percent; {
@@ -86,12 +82,4 @@ func (s *Stats) update() {
 	default:
 		s.Status = "low"
 	}
-}
-
-func div(a, b int) float64 {
-	if b == 0 {
-		return 0
-	}
-
-	return float64(a) / float64(b)
 }

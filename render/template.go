@@ -724,9 +724,9 @@ const reportTemplate = `<!doctype html>
       <section class="directory-overview" aria-label="Directory coverage by line share">
         <div class="directory-pie-wrap">
           <div class="directory-pie" aria-label="Directory coverage pie chart">
-            <svg class="directory-pie-svg" viewBox="-1 -1 2 2" role="img" aria-label="Directory coverage by coverable lines">
+            <svg class="directory-pie-svg" viewBox="-1 -1 2 2" role="img" aria-label="Directory coverage by coverable statements">
               {{range directories .}}
-              <path class="directory-slice" d="{{.Path}}" fill="{{.Color}}" tabindex="0" data-directory-slice data-name="{{.Name}}" data-coverage="{{.Coverage}}" data-lines="{{.Lines}}" data-share="{{.Share}}" data-depth="{{.Depth}}" />
+              <path class="directory-slice" d="{{.Path}}" fill="{{.Color}}" tabindex="0" data-directory-slice data-name="{{.Name}}" data-coverage="{{.Coverage}}" data-statements="{{.Statements}}" data-share="{{.Share}}" data-depth="{{.Depth}}" />
               {{end}}
             </svg>
             <div class="directory-pie-center" data-pie-center data-default-value="{{pct .Stats.Percent}}" data-default-label="total">

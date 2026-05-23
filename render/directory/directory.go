@@ -8,18 +8,18 @@ import (
 )
 
 type Directory struct {
-	Name     string
-	Depth    int
-	Lines    int
-	Path     string
-	Color    string
-	Coverage string
-	Share    string
+	Name       string
+	Depth      int
+	Statements int
+	Path       string
+	Color      string
+	Coverage   string
+	Share      string
 }
 
 func New(rep *report.Report) []*Directory {
 	root := NewNode(rep.Directories)
-	total := root.Weight()
+	total := root.TotalStatements()
 	if total <= 0 {
 		return nil
 	}
@@ -36,15 +36,15 @@ func New(rep *report.Report) []*Directory {
 
 func appendDir(dirs []*Directory, node *Node, start, end float64, ringCount, total int) []*Directory {
 	// append current directory
-	weight := node.Weight()
+	weight := node.TotalStatements()
 	slices := append(dirs, &Directory{
-		Name:     node.displayPath,
-		Depth:    node.depth,
-		Lines:    weight,
-		Path:     donutSegmentPath(start, end, node.depth, ringCount),
-		Color:    CoverageColor(node.Stats.Percent),
-		Coverage: Percent(node.Stats.Percent),
-		Share:    SharePercent(weight, total),
+		Name:       node.displayPath,
+		Depth:      node.depth,
+		Statements: weight,
+		Path:       donutSegmentPath(start, end, node.depth, ringCount),
+		Color:      CoverageColor(node.Stats.Percent),
+		Coverage:   Percent(node.Stats.Percent),
+		Share:      SharePercent(weight, total),
 	})
 
 	if len(node.children) == 0 || weight < 1 {
@@ -55,7 +55,7 @@ func appendDir(dirs []*Directory, node *Node, start, end float64, ringCount, tot
 	// append child directories
 	next, span := start, end-start
 	for _, v := range node.children {
-		if w := v.Stats.Weight(); w > 0 {
+		if w := v.TotalStatements(); w > 0 {
 			start, end := next, next+span*float64(w)/float64(weight)
 			next = end
 
