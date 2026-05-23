@@ -190,6 +190,14 @@ const reportTemplate = `<!doctype html>
       font-weight: 900;
     }
 
+    .lines-label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-left: 8px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
     .toolbar {
       position: sticky;
       top: 0;
@@ -696,19 +704,19 @@ const reportTemplate = `<!doctype html>
       <section class="stats" aria-label="Coverage totals">
         <div class="stat">
           <div class="stat-label">Tracked</div>
-          <div class="stat-value">{{.Stats.TotalLines}}</div>
+          <div class="stat-value">{{.Stats.TotalLines}}<span class="lines-label">lines</span></div>
         </div>
         <div class="stat">
           <div class="stat-label">Covered</div>
-          <div class="stat-value">{{.Stats.CoveredLines}}</div>
+          <div class="stat-value">{{.Stats.CoveredLines}}<span class="lines-label">lines</span></div>
         </div>
         <div class="stat">
           <div class="stat-label">Partial</div>
-          <div class="stat-value">{{.Stats.PartialLines}}</div>
+          <div class="stat-value">{{.Stats.PartialLines}}<span class="lines-label">lines</span></div>
         </div>
         <div class="stat">
           <div class="stat-label">Missed</div>
-          <div class="stat-value">{{.Stats.MissedLines}}</div>
+          <div class="stat-value">{{.Stats.MissedLines}}<span class="lines-label">lines</span></div>
         </div>
       </section>
 
