@@ -85,7 +85,6 @@ const reportTemplate = `<!doctype html>
 
     .file-link {
       display: grid;
-      max-width: 280px;
       gap: 6px;
       padding: 10px;
       border: 1px solid var(--border);
