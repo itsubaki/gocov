@@ -4,6 +4,10 @@
 
 ```sh
 go install github.com/itsubaki/gocov@latest
+```
+
+```sh
+go test -coverprofile=coverage.txt -covermode=atomic
 gocov -f coverage.txt
 ```
 
