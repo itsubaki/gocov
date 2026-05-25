@@ -11,9 +11,9 @@ import (
 
 type File struct {
 	ID          string
-	DisplayPath string
 	ProfilePath string
 	SourcePath  string
+	DisplayPath string
 	Directory   string
 	Found       bool
 	Blocks      int
@@ -23,26 +23,37 @@ type File struct {
 
 func NewFile(rootPath, modulePath, profileFile string, blocks []*profile.Block) (*File, error) {
 	var lines []Line
-	sourcePath, found := sourcePath(rootPath, modulePath, profileFile)
+	srcPath, found := sourcePath(rootPath, modulePath, profileFile)
 	if found {
-		data, err := os.ReadFile(sourcePath)
+		data, err := os.ReadFile(srcPath)
 		if err != nil {
-			return nil, fmt.Errorf("read source file %s: %w", sourcePath, err)
+			return nil, fmt.Errorf("read source file %s: %w", srcPath, err)
 		}
 
 		lines = NewLines(sourceLines(string(data)), blocks)
 	}
 
-	displayPath := displayPath(rootPath, modulePath, profileFile, sourcePath, found)
-	dirName := filepath.ToSlash(filepath.Dir(displayPath))
-	if dirName == "." {
-		dirName = "root"
-	}
+	dispPath := func() string {
+		if rel, ok := relativeSourcePath(rootPath, srcPath); ok {
+			return rel
+		}
+
+		return displayPath(modulePath, profileFile)
+	}()
+
+	dirName := func() string {
+		name := filepath.ToSlash(filepath.Dir(dispPath))
+		if name == "." {
+			return "root"
+		}
+
+		return name
+	}()
 
 	return &File{
-		DisplayPath: displayPath,
 		ProfilePath: profileFile,
-		SourcePath:  sourcePath,
+		SourcePath:  srcPath,
+		DisplayPath: dispPath,
 		Directory:   dirName,
 		Found:       found,
 		Blocks:      len(blocks),
@@ -89,14 +100,20 @@ func sourcePath(root, modulePath, profileFile string) (string, bool) {
 	return "", false
 }
 
-func displayPath(root, modulePath, profileFile, sourcePath string, found bool) string {
-	if found {
-		rel, err := filepath.Rel(root, sourcePath)
-		if err == nil && !strings.HasPrefix(rel, "..") {
-			return filepath.ToSlash(rel)
-		}
+func relativeSourcePath(root, sourcePath string) (string, bool) {
+	if sourcePath == "" {
+		return "", false
 	}
 
+	rel, err := filepath.Rel(root, sourcePath)
+	if err != nil || strings.HasPrefix(rel, "..") {
+		return "", false
+	}
+
+	return filepath.ToSlash(rel), true
+}
+
+func displayPath(modulePath, profileFile string) string {
 	slash := filepath.ToSlash(profileFile)
 	if modulePath == "" {
 		return slash

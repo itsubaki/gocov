@@ -37,64 +37,34 @@ func Example_sourceLines() {
 
 func Test_displayPath(t *testing.T) {
 	cases := []struct {
-		root        string
 		modulePath  string
 		profileFile string
-		sourcePath  string
-		found       bool
 		want        string
 	}{
 		{
-			root:        "/work",
-			sourcePath:  "/work/a/b.go",
-			profileFile: "ignored",
-			modulePath:  "mod",
-			found:       true,
-			want:        "a/b.go",
-		},
-		{
-			root:        "/work",
-			sourcePath:  "/other/a.go",
 			profileFile: "x/y.go",
 			modulePath:  "mod",
-			found:       true,
 			want:        "x/y.go",
 		},
 		{
-			root:        "/work",
-			sourcePath:  "/work/a.go",
 			profileFile: "pkg/a.go",
 			modulePath:  "",
-			found:       false,
 			want:        "pkg/a.go",
 		},
 		{
-			root:        "/work",
-			sourcePath:  "/work/a.go",
 			profileFile: "mod/pkg/a.go",
 			modulePath:  "mod",
-			found:       false,
 			want:        "pkg/a.go",
 		},
 		{
-			root:        "/work",
-			sourcePath:  "/work/a.go",
 			profileFile: "other/pkg/a.go",
 			modulePath:  "mod",
-			found:       false,
 			want:        "other/pkg/a.go",
 		},
 	}
 
 	for i, tt := range cases {
-		got := report.DisplayPath(
-			tt.root,
-			tt.modulePath,
-			tt.profileFile,
-			tt.sourcePath,
-			tt.found,
-		)
-
+		got := report.DisplayPath(tt.modulePath, tt.profileFile)
 		if got != tt.want {
 			t.Fatalf("case %d: got %q, want %q", i, got, tt.want)
 		}
