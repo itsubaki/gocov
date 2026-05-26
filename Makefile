@@ -9,7 +9,7 @@ test:
 	go tool cover -html=coverage.txt -o coverage.html
 
 gocov:
-	go run main.go -f coverage.txt -o output/coverage.html
+	go run main.go --badge -f coverage.txt -o output/coverage.html
 
 install:
 	go install

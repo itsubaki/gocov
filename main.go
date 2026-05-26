@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/itsubaki/gocov/badge"
 	"github.com/itsubaki/gocov/profile"
 	"github.com/itsubaki/gocov/render"
 	"github.com/itsubaki/gocov/report"
@@ -15,9 +16,11 @@ import (
 
 func main() {
 	var profilePath, outputPath, root string
+	var outBadge bool
 	flag.StringVar(&profilePath, "f", "coverage.txt", "path to a Go coverage profile")
 	flag.StringVar(&outputPath, "o", "coverage.html", "path to the HTML report to write")
 	flag.StringVar(&root, "root", ".", "path to the Go repository root")
+	flag.BoolVar(&outBadge, "badge", false, "output SVG badge")
 	flag.Parse()
 
 	if strings.TrimSpace(profilePath) == "" {
@@ -43,16 +46,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := run(input, output, dir); err != nil {
+	rep, err := run(input, output, dir)
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
 		os.Exit(1)
 	}
+
+	if outBadge {
+		path := strings.TrimSuffix(output, filepath.Ext(output)) + ".svg"
+		file, close, err := touch(path)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
+			os.Exit(1)
+		}
+		defer func() {
+			if err := close(); err != nil {
+				fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
+			}
+		}()
+
+		if _, err = file.WriteString(badge.SVG(rep.Stats.Percent)); err != nil {
+			fmt.Fprintf(os.Stderr, "gocov: %v\n", err)
+			os.Exit(1)
+		}
+	}
 }
 
-func run(input, output, dir string) error {
+func run(input, output, dir string) (*report.Report, error) {
 	prof, err := profile.Parse(input)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	rep, err := report.New(prof, report.Options{
@@ -62,12 +85,12 @@ func run(input, output, dir string) error {
 		GeneratedAt: time.Now(),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	file, close, err := touch(output)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		if err := close(); err != nil {
@@ -76,10 +99,10 @@ func run(input, output, dir string) error {
 	}()
 
 	if err := render.HTML(file, rep); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return rep, nil
 }
 
 func touch(path string) (*os.File, func() error, error) {
