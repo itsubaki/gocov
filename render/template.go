@@ -842,6 +842,19 @@ const reportTemplate = `<!doctype html>
     const pieLabel = document.querySelector('[data-pie-label]');
     const nameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
+    function openDetailsForHash() {
+      if (!location.hash) return;
+      const id = location.hash.slice(1);
+      const card = document.getElementById(id);
+      if (card) {
+        const details = card.querySelector('details');
+        if (details) details.open = true;
+      }
+    }
+
+    window.addEventListener('hashchange', openDetailsForHash);
+    window.addEventListener('DOMContentLoaded', openDetailsForHash);
+
     search.addEventListener('input', () => {
       const query = search.value.trim().toLowerCase();
       for (const link of links) {
