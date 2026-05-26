@@ -8,11 +8,17 @@
 `gocov` turns a Go coverage profile into a rich, local HTML report. Run it from the root of the Go repository that produced the profile:
 
 ```sh
-go install github.com/itsubaki/gocov@latest
+go test -coverprofile=coverage.txt -covermode=atomic
 gocov -f coverage.txt
 ```
 
 By default it writes `coverage.html` in the current directory.
+
+## Installation
+
+```sh
+go install github.com/itsubaki/gocov@latest
+```
 
 ## Usage
 
