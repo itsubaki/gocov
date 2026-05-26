@@ -849,6 +849,17 @@ const reportTemplate = `<!doctype html>
       if (card) {
         const details = card.querySelector('details');
         if (details) details.open = true;
+
+        const toolbar = document.querySelector('.toolbar');
+        let offset = 0;
+        if (toolbar) {
+          const rect = toolbar.getBoundingClientRect();
+          offset = rect.height + 10; // 10px余裕
+        }
+
+        const cardRect = card.getBoundingClientRect();
+        const scrollTop = window.pageYOffset + cardRect.top - offset;
+        window.scrollTo({ top: scrollTop, behavior: 'smooth' });
       }
     }
 
