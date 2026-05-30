@@ -51,7 +51,7 @@ func ExampleNew() {
 	// dir1/subdir2 2 100.0% 30 10.0% #2f9d5d
 }
 
-func Test_donutSegmentPath(t *testing.T) {
+func TestDonutSegmentPath(t *testing.T) {
 	cases := []struct {
 		start     float64
 		end       float64
@@ -91,12 +91,12 @@ func Test_donutSegmentPath(t *testing.T) {
 
 	for _, c := range cases {
 		if got := directory.DonutSegmentPath(c.start, c.end, c.depth, c.ringCount); got != c.want {
-			t.Errorf("donutSegmentPath(%v, %v, %v, %v) = %v, want %v", c.start, c.end, c.depth, c.ringCount, got, c.want)
+			t.Errorf("DonutSegmentPath(%v, %v, %v, %v) = %v, want %v", c.start, c.end, c.depth, c.ringCount, got, c.want)
 		}
 	}
 }
 
-func Test_ringRadii(t *testing.T) {
+func TestRingRadii(t *testing.T) {
 	cases := []struct {
 		depth int
 		count int
@@ -122,11 +122,11 @@ func Test_ringRadii(t *testing.T) {
 	for _, c := range cases {
 		inner, outer := directory.RingRadii(c.depth, c.count)
 		if inner != c.want[0] {
-			t.Errorf("ringRadii(%v, %v) inner = %v, want %v", c.depth, c.count, inner, c.want[0])
+			t.Errorf("RingRadii(%v, %v) inner = %v, want %v", c.depth, c.count, inner, c.want[0])
 		}
 
 		if outer != c.want[1] {
-			t.Errorf("ringRadii(%v, %v) outer = %v, want %v", c.depth, c.count, outer, c.want[1])
+			t.Errorf("RingRadii(%v, %v) outer = %v, want %v", c.depth, c.count, outer, c.want[1])
 		}
 	}
 }

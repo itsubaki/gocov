@@ -37,7 +37,7 @@ func ExampleHTML() {
 	// <!doctype html>
 }
 
-func Test_generatedAt(t *testing.T) {
+func TestGeneratedAt(t *testing.T) {
 	cases := []struct {
 		t    time.Time
 		want string
@@ -54,12 +54,12 @@ func Test_generatedAt(t *testing.T) {
 
 	for _, c := range cases {
 		if got := render.GeneratedAt(c.t); got != c.want {
-			t.Errorf("got=%v, want=%v", got, c.want)
+			t.Errorf("GeneratedAt(%v) = %v, want %v", c.t, got, c.want)
 		}
 	}
 }
 
-func Test_stylePct(t *testing.T) {
+func TestStylePct(t *testing.T) {
 	cases := []struct {
 		v    float64
 		want string
@@ -73,12 +73,12 @@ func Test_stylePct(t *testing.T) {
 
 	for _, c := range cases {
 		if got := render.StylePct(c.v); got != c.want {
-			t.Errorf("got=%v, want=%v", got, c.want)
+			t.Errorf("StylePct(%v) = %v, want %v", c.v, got, c.want)
 		}
 	}
 }
 
-func Test_covColor(t *testing.T) {
+func TestCovColor(t *testing.T) {
 	cases := []struct {
 		v    float64
 		want template.CSS
@@ -96,12 +96,12 @@ func Test_covColor(t *testing.T) {
 
 	for _, c := range cases {
 		if got := render.CovColor(c.v); got != c.want {
-			t.Errorf("got=%v, want=%v", got, c.want)
+			t.Errorf("CovColor(%v) = %v, want %v", c.v, got, c.want)
 		}
 	}
 }
 
-func Test_lineClass(t *testing.T) {
+func TestLineClass(t *testing.T) {
 	cases := []struct {
 		state string
 		want  string
@@ -113,7 +113,7 @@ func Test_lineClass(t *testing.T) {
 
 	for _, c := range cases {
 		if got := render.LineClass(c.state); got != c.want {
-			t.Errorf("got=%v, want=%v", got, c.want)
+			t.Errorf("LineClass(%q) = %q, want %q", c.state, got, c.want)
 		}
 	}
 }

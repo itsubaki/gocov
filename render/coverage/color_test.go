@@ -41,7 +41,7 @@ func TestColor(t *testing.T) {
 	}
 }
 
-func Test_hslHex(t *testing.T) {
+func TestHSLHex(t *testing.T) {
 	cases := []struct {
 		hue        float64
 		saturation float64
@@ -70,12 +70,12 @@ func Test_hslHex(t *testing.T) {
 
 	for _, c := range cases {
 		if got := coverage.HSLHex(c.hue, c.saturation, c.lightness); got != c.want {
-			t.Errorf("hslHex(%v, %v, %v) = %v, want %v", c.hue, c.saturation, c.lightness, got, c.want)
+			t.Errorf("HSLHex(%v, %v, %v) = %v, want %v", c.hue, c.saturation, c.lightness, got, c.want)
 		}
 	}
 }
 
-func Test_hueToRGB(t *testing.T) {
+func TestHueToRGB(t *testing.T) {
 	cases := []struct {
 		p    float64
 		q    float64
@@ -104,7 +104,7 @@ func Test_hueToRGB(t *testing.T) {
 
 	for _, c := range cases {
 		if got := coverage.HueToRGB(c.p, c.q, c.t); got != c.want {
-			t.Errorf("hueToRGB(%v, %v, %v) = %v, want %v", c.p, c.q, c.t, got, c.want)
+			t.Errorf("HueToRGB(%v, %v, %v) = %v, want %v", c.p, c.q, c.t, got, c.want)
 		}
 	}
 }

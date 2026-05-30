@@ -7,7 +7,7 @@ import (
 	"github.com/itsubaki/gocov/profile"
 )
 
-func Example_parseLine() {
+func ExampleParseLine() {
 	block, err := profile.ParseLine("github.com/itsubaki/gocov/profile/block.go:69.49,71.23 2 5")
 	if err != nil {
 		panic(err)
@@ -25,7 +25,7 @@ func Example_parseLine() {
 	// 2 5
 }
 
-func Test_parseLine(t *testing.T) {
+func TestParseLine(t *testing.T) {
 	cases := []struct {
 		line   string
 		block  *profile.Block
@@ -56,7 +56,7 @@ func Test_parseLine(t *testing.T) {
 	}
 }
 
-func Test_parsePoint(t *testing.T) {
+func TestParsePoint(t *testing.T) {
 	cases := []struct {
 		s         string
 		line, col int
@@ -80,7 +80,7 @@ func Test_parsePoint(t *testing.T) {
 		}
 
 		if line != c.line || col != c.col {
-			t.Errorf("got=(%d, %d), want=(%d, %d)", line, col, c.line, c.col)
+			t.Errorf("ParsePoint(%q) = (%d, %d), want=(%d, %d)", c.s, line, col, c.line, c.col)
 		}
 	}
 }

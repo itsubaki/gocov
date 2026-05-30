@@ -13,7 +13,7 @@ import (
 //go:embed file.go
 var filedotgo []byte
 
-func Example_sourceLines() {
+func ExampleSourceLines() {
 	tmpFile, err := os.CreateTemp("", "coverage-*.txt")
 	if err != nil {
 		panic(err)
@@ -35,7 +35,7 @@ func Example_sourceLines() {
 	// import (
 }
 
-func Test_displayPath(t *testing.T) {
+func TestDisplayPath(t *testing.T) {
 	cases := []struct {
 		modulePath  string
 		profileFile string
@@ -63,15 +63,15 @@ func Test_displayPath(t *testing.T) {
 		},
 	}
 
-	for i, tt := range cases {
-		got := report.DisplayPath(tt.modulePath, tt.profileFile)
-		if got != tt.want {
-			t.Fatalf("case %d: got %q, want %q", i, got, tt.want)
+	for _, c := range cases {
+		got := report.DisplayPath(c.modulePath, c.profileFile)
+		if got != c.want {
+			t.Fatalf("DisplayPath(%q, %q) = %q, want %q", c.modulePath, c.profileFile, got, c.want)
 		}
 	}
 }
 
-func Test_sourcePath(t *testing.T) {
+func TestSourcePath(t *testing.T) {
 	root := t.TempDir()
 	os.MkdirAll(filepath.Join(root, "pkg"), 0755)
 	os.MkdirAll(filepath.Join(root, "mod"), 0755)
@@ -106,14 +106,14 @@ func Test_sourcePath(t *testing.T) {
 		},
 	}
 
-	for i, c := range cases {
+	for _, c := range cases {
 		got, ok := report.SourcePath(root, c.modulePath, c.profileFile)
 		if ok != c.ok {
-			t.Errorf("case %d: ok = %v want %v", i, ok, c.ok)
+			t.Errorf("SourcePath(%q, %q) ok = %v, want %v", c.modulePath, c.profileFile, ok, c.ok)
 		}
 
 		if c.ok && got == "" {
-			t.Errorf("case %d: expected path but got empty", i)
+			t.Errorf("SourcePath(%q, %q) = empty, want non-empty", c.modulePath, c.profileFile)
 		}
 	}
 }

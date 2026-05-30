@@ -73,7 +73,7 @@ func TestNewLines(t *testing.T) {
 	}
 }
 
-func Test_formatHits(t *testing.T) {
+func TestFormatHits(t *testing.T) {
 	cases := []struct {
 		hits int64
 		want string
@@ -85,7 +85,7 @@ func Test_formatHits(t *testing.T) {
 	}
 	for _, c := range cases {
 		if got := report.FormatHits(c.hits); got != c.want {
-			t.Errorf("formatHits(%d) = %q, want %q", c.hits, got, c.want)
+			t.Errorf("FormatHits(%d) = %q, want %q", c.hits, got, c.want)
 		}
 	}
 }

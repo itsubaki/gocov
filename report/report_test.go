@@ -7,7 +7,7 @@ import (
 	"github.com/itsubaki/gocov/report"
 )
 
-func Test_modulePath(t *testing.T) {
+func TestModulePath(t *testing.T) {
 	cases := []struct {
 		gomod string
 		want  string
@@ -40,7 +40,7 @@ go 1.22
 	for _, c := range cases {
 		got := report.ModulePath(strings.NewReader(c.gomod))
 		if got != c.want {
-			t.Errorf("got %q, want %q", got, c.want)
+			t.Errorf("ModulePath(%q) = %q, want %q", c.gomod, got, c.want)
 		}
 	}
 }
