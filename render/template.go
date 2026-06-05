@@ -187,7 +187,7 @@ const reportTemplate = `<!doctype html>
 
     .sidebar-controls {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 8px;
       align-items: center;
     }
@@ -224,6 +224,10 @@ const reportTemplate = `<!doctype html>
       font: inherit;
       font-size: 12px;
       font-weight: 800;
+    }
+
+    .theme-toggle-mobile {
+      display: none;
     }
 
     .theme-toggle:hover {
@@ -322,6 +326,10 @@ const reportTemplate = `<!doctype html>
     }
 
     .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
       margin-bottom: 24px;
     }
 
@@ -801,6 +809,18 @@ const reportTemplate = `<!doctype html>
         height: auto;
       }
 
+      .sidebar-controls {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      .theme-toggle-desktop {
+        display: none;
+      }
+
+      .theme-toggle-mobile {
+        display: inline-flex;
+      }
+
       .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -817,6 +837,10 @@ const reportTemplate = `<!doctype html>
 
       h1 {
         font-size: 36px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
       }
 
       .stats {
@@ -850,7 +874,7 @@ const reportTemplate = `<!doctype html>
     <aside class="sidebar">
       <div class="sidebar-controls">
         <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
-        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+        <button class="theme-toggle theme-toggle-mobile" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
           <span class="theme-icon" aria-hidden="true"></span>
           <span data-theme-label>Light</span>
         </button>
@@ -883,6 +907,10 @@ const reportTemplate = `<!doctype html>
             Generated {{generatedAt .GeneratedAt}}
           </p>
         </div>
+        <button class="theme-toggle theme-toggle-desktop" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span data-theme-label>Light</span>
+        </button>
       </header>
 
       <section class="stats" aria-label="Coverage totals">
@@ -1025,8 +1053,8 @@ const reportTemplate = `<!doctype html>
     const pieCenter = document.querySelector('[data-pie-center]');
     const pieValue = document.querySelector('[data-pie-value]');
     const pieLabel = document.querySelector('[data-pie-label]');
-    const themeToggle = document.querySelector('[data-theme-toggle]');
-    const themeLabel = document.querySelector('[data-theme-label]');
+    const themeToggles = [...document.querySelectorAll('[data-theme-toggle]')];
+    const themeLabels = [...document.querySelectorAll('[data-theme-label]')];
     const themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const nameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
@@ -1037,26 +1065,38 @@ const reportTemplate = `<!doctype html>
     };
 
     const updateThemeToggle = () => {
-      if (!themeToggle) return;
+      if (themeToggles.length === 0) return;
       const theme = activeTheme();
-      themeToggle.dataset.themeMode = theme;
-      themeToggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
-      if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
+      for (const toggle of themeToggles) {
+        toggle.dataset.themeMode = theme;
+        toggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+      }
+      for (const label of themeLabels) {
+        label.textContent = theme === 'dark' ? 'Dark' : 'Light';
+      }
     };
 
-    if (themeToggle) {
-      themeToggle.addEventListener('click', () => {
-        const next = activeTheme() === 'dark' ? 'light' : 'dark';
-        document.documentElement.dataset.theme = next;
-        try {
-          localStorage.setItem('gocov-theme', next);
-        } catch (_) {}
-        updateThemeToggle();
-      });
+    if (themeToggles.length > 0) {
+      for (const toggle of themeToggles) {
+        toggle.addEventListener('click', () => {
+          const next = activeTheme() === 'dark' ? 'light' : 'dark';
+          document.documentElement.dataset.theme = next;
+          try {
+            localStorage.setItem('gocov-theme', next);
+          } catch (_) {}
+          updateThemeToggle();
+        });
+      }
 
-      themeQuery.addEventListener('change', () => {
+      const handleThemeQueryChange = () => {
         if (!document.documentElement.dataset.theme) updateThemeToggle();
-      });
+      };
+
+      if (themeQuery.addEventListener) {
+        themeQuery.addEventListener('change', handleThemeQueryChange);
+      } else if (themeQuery.addListener) {
+        themeQuery.addListener(handleThemeQueryChange);
+      }
 
       updateThemeToggle();
     }
