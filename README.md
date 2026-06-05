@@ -30,6 +30,5 @@ Flags:
 
 - `-f`: path to a Go coverage profile, usually created by `go test ./... -coverprofile=coverage.txt`
 - `-o`: output path for the generated HTML report
-- `-root`: Go repository root; defaults to the current directory
 
 The report is a single self-contained HTML file with summary charts, a hierarchical directory coverage pie weighted by coverable lines, directory bars, searchable file navigation, and line-level coverage highlighting.
