@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
@@ -114,6 +115,21 @@ func TestLineClass(t *testing.T) {
 	for _, c := range cases {
 		if got := render.LineClass(c.state); got != c.want {
 			t.Errorf("LineClass(%q) = %q, want %q", c.state, got, c.want)
+		}
+	}
+}
+
+func TestReportTemplateIncludesDarkMode(t *testing.T) {
+	want := []string{
+		`@media (prefers-color-scheme: dark)`,
+		`:root[data-theme="dark"]`,
+		`data-theme-toggle`,
+		`localStorage.setItem('gocov-theme', next)`,
+	}
+
+	for _, text := range want {
+		if !strings.Contains(render.ReportTemplate, text) {
+			t.Errorf("ReportTemplate missing %q", text)
 		}
 	}
 }
