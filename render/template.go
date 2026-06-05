@@ -6,14 +6,28 @@ const reportTemplate = `<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Coverage report</title>
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('gocov-theme');
+        if (theme === 'dark' || theme === 'light') {
+          document.documentElement.dataset.theme = theme;
+        }
+      } catch (_) {}
+    })();
+  </script>
   <style>
     :root {
       color-scheme: light;
       --bg: #f7f7f3;
       --panel: #ffffff;
+      --surface: #ffffff;
+      --surface-soft: #fafaf7;
+      --sidebar: #fbfbf8;
       --ink: #24272e;
       --muted: #69707d;
       --border: #dcded6;
+      --border-strong: #bfc4b8;
       --green: #2f9e44;
       --green-soft: #e9f7ed;
       --red: #d94848;
@@ -23,7 +37,124 @@ const reportTemplate = `<!doctype html>
       --teal: #178a8a;
       --code: #272b33;
       --line: #eef0ea;
+      --bar-track: #edf0e8;
+      --toolbar-bg: rgba(255, 255, 255, 0.92);
+      --button-bg: #ffffff;
+      --button-active-bg: var(--ink);
+      --button-active-ink: #ffffff;
+      --focus-ring: rgba(23, 138, 138, 0.14);
+      --row-border: #eceee6;
+      --source-bg: #ffffff;
+      --gutter-bg: #fafaf7;
+      --line-no: #8a9099;
+      --line-hits: #69707d;
+      --source-row: #f1f2ed;
+      --missing-border: #efb1b1;
+      --missing-bg: #fff7f7;
+      --missing-ink: #842029;
+      --tooltip-bg: var(--ink);
+      --tooltip-ink: #ffffff;
+      --swatch-ring: rgba(35, 39, 46, 0.18);
       --shadow: 0 18px 45px rgba(35, 39, 46, 0.10);
+      --shadow-soft: 0 10px 24px rgba(35, 39, 46, 0.05);
+      --shadow-card: 0 12px 26px rgba(35, 39, 46, 0.06);
+      --shadow-hover: 0 8px 22px rgba(35, 39, 46, 0.08);
+      --shadow-pie: 0 16px 34px rgba(35, 39, 46, 0.10);
+      --shadow-tooltip: 0 12px 24px rgba(35, 39, 46, 0.18);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #11130f;
+        --panel: #181b16;
+        --surface: #181b16;
+        --surface-soft: #20241d;
+        --sidebar: #141610;
+        --ink: #eef2e8;
+        --muted: #a6ad9f;
+        --border: #32372d;
+        --border-strong: #596151;
+        --green: #6ed082;
+        --green-soft: rgba(54, 150, 77, 0.22);
+        --red: #ff7a7a;
+        --red-soft: rgba(217, 72, 72, 0.18);
+        --amber: #f4c15c;
+        --amber-soft: rgba(199, 134, 27, 0.20);
+        --teal: #50c7c7;
+        --code: #edf1e8;
+        --line: #2a2f26;
+        --bar-track: #2a3026;
+        --toolbar-bg: rgba(24, 27, 22, 0.92);
+        --button-bg: #12150f;
+        --button-active-bg: #eef2e8;
+        --button-active-ink: #11130f;
+        --focus-ring: rgba(80, 199, 199, 0.20);
+        --row-border: #2a2f26;
+        --source-bg: #11140f;
+        --gutter-bg: #181b16;
+        --line-no: #a0a89a;
+        --line-hits: #a6ad9f;
+        --source-row: #242920;
+        --missing-border: #7c3737;
+        --missing-bg: #2a1717;
+        --missing-ink: #ffb5b5;
+        --tooltip-bg: #f0f5e8;
+        --tooltip-ink: #11130f;
+        --swatch-ring: rgba(238, 242, 232, 0.22);
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.38);
+        --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.26);
+        --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.28);
+        --shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.30);
+        --shadow-pie: 0 16px 34px rgba(0, 0, 0, 0.34);
+        --shadow-tooltip: 0 12px 24px rgba(0, 0, 0, 0.34);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #11130f;
+      --panel: #181b16;
+      --surface: #181b16;
+      --surface-soft: #20241d;
+      --sidebar: #141610;
+      --ink: #eef2e8;
+      --muted: #a6ad9f;
+      --border: #32372d;
+      --border-strong: #596151;
+      --green: #6ed082;
+      --green-soft: rgba(54, 150, 77, 0.22);
+      --red: #ff7a7a;
+      --red-soft: rgba(217, 72, 72, 0.18);
+      --amber: #f4c15c;
+      --amber-soft: rgba(199, 134, 27, 0.20);
+      --teal: #50c7c7;
+      --code: #edf1e8;
+      --line: #2a2f26;
+      --bar-track: #2a3026;
+      --toolbar-bg: rgba(24, 27, 22, 0.92);
+      --button-bg: #12150f;
+      --button-active-bg: #eef2e8;
+      --button-active-ink: #11130f;
+      --focus-ring: rgba(80, 199, 199, 0.20);
+      --row-border: #2a2f26;
+      --source-bg: #11140f;
+      --gutter-bg: #181b16;
+      --line-no: #a0a89a;
+      --line-hits: #a6ad9f;
+      --source-row: #242920;
+      --missing-border: #7c3737;
+      --missing-bg: #2a1717;
+      --missing-ink: #ffb5b5;
+      --tooltip-bg: #f0f5e8;
+      --tooltip-ink: #11130f;
+      --swatch-ring: rgba(238, 242, 232, 0.22);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.38);
+      --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.26);
+      --shadow-card: 0 12px 26px rgba(0, 0, 0, 0.28);
+      --shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.30);
+      --shadow-pie: 0 16px 34px rgba(0, 0, 0, 0.34);
+      --shadow-tooltip: 0 12px 24px rgba(0, 0, 0, 0.34);
     }
 
     * { box-sizing: border-box; }
@@ -50,8 +181,15 @@ const reportTemplate = `<!doctype html>
       height: 100vh;
       overflow: auto;
       border-right: 1px solid var(--border);
-      background: #fbfbf8;
+      background: var(--sidebar);
       padding: 24px 18px;
+    }
+
+    .sidebar-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
     }
 
     .search {
@@ -59,7 +197,7 @@ const reportTemplate = `<!doctype html>
       height: 40px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      background: #fff;
+      background: var(--surface);
       color: var(--ink);
       padding: 0 12px;
       font: inherit;
@@ -68,7 +206,48 @@ const reportTemplate = `<!doctype html>
 
     .search:focus {
       border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(23, 138, 138, 0.14);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 40px;
+      min-width: 88px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--button-bg);
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--border-strong);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .theme-icon {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--ink);
+      box-shadow: inset -6px -2px 0 var(--button-bg);
+      flex: 0 0 auto;
+    }
+
+    .theme-toggle[data-theme-mode="dark"] .theme-icon {
+      background: var(--amber);
+      box-shadow: 0 0 0 3px var(--amber-soft);
     }
 
     .side-meta {
@@ -89,12 +268,12 @@ const reportTemplate = `<!doctype html>
       padding: 10px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      background: #fff;
+      background: var(--surface);
     }
 
     .file-link:hover {
-      border-color: #bfc4b8;
-      box-shadow: 0 8px 22px rgba(35, 39, 46, 0.08);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-hover);
     }
 
     .file-link-top {
@@ -125,7 +304,7 @@ const reportTemplate = `<!doctype html>
       display: block;
       height: 7px;
       border-radius: 999px;
-      background: #edf0e8;
+      background: var(--bar-track);
       overflow: hidden;
     }
 
@@ -173,7 +352,7 @@ const reportTemplate = `<!doctype html>
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 16px;
-      box-shadow: 0 10px 24px rgba(35, 39, 46, 0.05);
+      box-shadow: var(--shadow-soft);
     }
 
     .stat-label {
@@ -209,13 +388,13 @@ const reportTemplate = `<!doctype html>
       margin: 0 0 18px;
       border: 1px solid var(--border);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.92);
+      background: var(--toolbar-bg);
       backdrop-filter: blur(10px);
     }
 
     .tool-button {
       border: 1px solid var(--border);
-      background: #fff;
+      background: var(--button-bg);
       color: var(--ink);
       border-radius: 8px;
       height: 34px;
@@ -227,9 +406,9 @@ const reportTemplate = `<!doctype html>
     }
 
     .tool-button.active {
-      background: var(--ink);
-      border-color: var(--ink);
-      color: #fff;
+      background: var(--button-active-bg);
+      border-color: var(--button-active-bg);
+      color: var(--button-active-ink);
     }
 
     .toolbar-divider {
@@ -263,7 +442,7 @@ const reportTemplate = `<!doctype html>
       border: 1px solid var(--border);
       border-radius: 8px;
       background: var(--panel);
-      box-shadow: 0 12px 26px rgba(35, 39, 46, 0.06);
+      box-shadow: var(--shadow-card);
     }
 
     .directory-pie-wrap {
@@ -279,7 +458,7 @@ const reportTemplate = `<!doctype html>
       border-radius: 50%;
       display: grid;
       place-items: center;
-      box-shadow: 0 16px 34px rgba(35, 39, 46, 0.10);
+      box-shadow: var(--shadow-pie);
     }
 
     .directory-pie-svg {
@@ -352,9 +531,9 @@ const reportTemplate = `<!doctype html>
       width: max-content;
       padding: 8px 10px;
       border-radius: 8px;
-      background: var(--ink);
-      color: #fff;
-      box-shadow: 0 12px 24px rgba(35, 39, 46, 0.18);
+      background: var(--tooltip-bg);
+      color: var(--tooltip-ink);
+      box-shadow: var(--shadow-tooltip);
       font-size: 12px;
       font-weight: 800;
       line-height: 1.35;
@@ -381,7 +560,7 @@ const reportTemplate = `<!doctype html>
       gap: 8px 10px;
       align-items: center;
       padding: 10px 0;
-      border-bottom: 1px solid #eceee6;
+      border-bottom: 1px solid var(--row-border);
     }
 
     .directory-row:last-child {
@@ -393,7 +572,7 @@ const reportTemplate = `<!doctype html>
       height: 14px;
       border-radius: 50%;
       background: var(--coverage-color);
-      box-shadow: inset 0 0 0 1px rgba(35, 39, 46, 0.18);
+      box-shadow: inset 0 0 0 1px var(--swatch-ring);
     }
 
     .directory-row-main {
@@ -425,7 +604,7 @@ const reportTemplate = `<!doctype html>
       grid-column: 2 / -1;
       height: 6px;
       border-radius: 999px;
-      background: #edf0e8;
+      background: var(--bar-track);
       overflow: hidden;
     }
 
@@ -468,10 +647,10 @@ const reportTemplate = `<!doctype html>
     }
 
     .missing {
-      border: 1px solid #efb1b1;
+      border: 1px solid var(--missing-border);
       border-radius: 8px;
-      background: #fff7f7;
-      color: #842029;
+      background: var(--missing-bg);
+      color: var(--missing-ink);
       padding: 14px 16px;
       margin: 18px 0;
       overflow-wrap: anywhere;
@@ -482,7 +661,7 @@ const reportTemplate = `<!doctype html>
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 8px;
-      box-shadow: 0 12px 26px rgba(35, 39, 46, 0.06);
+      box-shadow: var(--shadow-card);
       overflow: clip;
     }
 
@@ -526,7 +705,7 @@ const reportTemplate = `<!doctype html>
       padding: 0 8px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: #fafaf7;
+      background: var(--surface-soft);
       font-weight: 700;
     }
 
@@ -539,7 +718,7 @@ const reportTemplate = `<!doctype html>
     .source-wrap {
       overflow: auto;
       max-height: 780px;
-      background: #fff;
+      background: var(--source-bg);
     }
 
     table.source {
@@ -554,8 +733,8 @@ const reportTemplate = `<!doctype html>
 
     .line-no {
       width: 72px;
-      color: #8a9099;
-      background: #fafaf7;
+      color: var(--line-no);
+      background: var(--gutter-bg);
       text-align: right;
       user-select: none;
       border-right: 1px solid var(--line);
@@ -563,7 +742,7 @@ const reportTemplate = `<!doctype html>
 
     .line-hits {
       width: 74px;
-      color: #69707d;
+      color: var(--line-hits);
       text-align: right;
       user-select: none;
       border-right: 1px solid var(--line);
@@ -581,7 +760,7 @@ const reportTemplate = `<!doctype html>
       padding: 0 12px;
       vertical-align: top;
       height: 24px;
-      border-bottom: 1px solid #f1f2ed;
+      border-bottom: 1px solid var(--source-row);
     }
 
     tr.line-covered td { background: var(--green-soft); }
@@ -669,7 +848,13 @@ const reportTemplate = `<!doctype html>
 <body data-line-filter="all">
   <div class="layout">
     <aside class="sidebar">
-      <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
+      <div class="sidebar-controls">
+        <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span data-theme-label>Light</span>
+        </button>
+      </div>
       <div class="side-meta">
         <div>{{.Stats.TotalFiles}} files</div>
         <div>{{.Stats.CoveredStatements}} / {{.Stats.TotalStatements}} ({{pct .Stats.Percent}}) statements covered.</div>
@@ -840,7 +1025,41 @@ const reportTemplate = `<!doctype html>
     const pieCenter = document.querySelector('[data-pie-center]');
     const pieValue = document.querySelector('[data-pie-value]');
     const pieLabel = document.querySelector('[data-pie-label]');
+    const themeToggle = document.querySelector('[data-theme-toggle]');
+    const themeLabel = document.querySelector('[data-theme-label]');
+    const themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const nameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
+    const activeTheme = () => {
+      const theme = document.documentElement.dataset.theme;
+      if (theme === 'dark' || theme === 'light') return theme;
+      return themeQuery.matches ? 'dark' : 'light';
+    };
+
+    const updateThemeToggle = () => {
+      if (!themeToggle) return;
+      const theme = activeTheme();
+      themeToggle.dataset.themeMode = theme;
+      themeToggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+      if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
+    };
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const next = activeTheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try {
+          localStorage.setItem('gocov-theme', next);
+        } catch (_) {}
+        updateThemeToggle();
+      });
+
+      themeQuery.addEventListener('change', () => {
+        if (!document.documentElement.dataset.theme) updateThemeToggle();
+      });
+
+      updateThemeToggle();
+    }
 
     function openDetailsForHash() {
       if (!location.hash) return;
