@@ -240,20 +240,6 @@ const reportTemplate = `<!doctype html>
       box-shadow: 0 0 0 3px var(--focus-ring);
     }
 
-    .theme-icon {
-      width: 17px;
-      height: 17px;
-      border-radius: 50%;
-      background: var(--ink);
-      box-shadow: inset -6px -2px 0 var(--button-bg);
-      flex: 0 0 auto;
-    }
-
-    .theme-toggle[data-theme-mode="dark"] .theme-icon {
-      background: var(--amber);
-      box-shadow: 0 0 0 3px var(--amber-soft);
-    }
-
     .side-meta {
       margin: 14px 0 18px;
       color: var(--muted);
@@ -875,7 +861,6 @@ const reportTemplate = `<!doctype html>
       <div class="sidebar-controls">
         <input class="search" id="fileSearch" type="search" placeholder="Filter files" aria-label="Filter files">
         <button class="theme-toggle theme-toggle-mobile" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
-          <span class="theme-icon" aria-hidden="true"></span>
           <span data-theme-label>Light</span>
         </button>
       </div>
@@ -908,7 +893,6 @@ const reportTemplate = `<!doctype html>
           </p>
         </div>
         <button class="theme-toggle theme-toggle-desktop" type="button" data-theme-toggle aria-label="Toggle color theme" aria-pressed="false">
-          <span class="theme-icon" aria-hidden="true"></span>
           <span data-theme-label>Light</span>
         </button>
       </header>
