@@ -1,7 +1,6 @@
 # gocov
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/itsubaki/gocov)](https://pkg.go.dev/github.com/itsubaki/gocov)
-[![Go Report Card](https://goreportcard.com/badge/github.com/itsubaki/gocov?style=flat-square)](https://goreportcard.com/report/github.com/itsubaki/gocov)
 [![tests](https://github.com/itsubaki/gocov/workflows/tests/badge.svg)](https://github.com/itsubaki/gocov/actions)
 [![coverage](https://itsubaki.github.io/gocov/coverage.svg)](https://itsubaki.github.io/gocov/)
 
